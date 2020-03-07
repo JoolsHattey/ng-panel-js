@@ -17,7 +17,15 @@
     "lib": [
       "es2018",
       "dom"
-    ]
+    ],
+    "paths": {
+      "panel-js": [
+        "dist/panel-js"
+      ],
+      "panel-js/*": [
+        "dist/panel-js/*"
+      ]
+    }
   },
   "angularCompilerOptions": {
     "fullTemplateTypeCheck": true,
