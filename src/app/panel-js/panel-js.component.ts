@@ -2,7 +2,7 @@ import { Component, OnInit, HostListener } from '@angular/core';
 import { trigger, state, transition, animate, style } from '@angular/animations';
 
 @Component({
-  selector: 'panel-js',
+  selector: 'app-root',
   templateUrl: './panel-js.component.html',
   styleUrls: ['./panel-js.component.scss'],
   // host: {
@@ -27,7 +27,24 @@ import { trigger, state, transition, animate, style } from '@angular/animations'
       transition('closed => open', [
         animate('0.5s')
       ]),
-    ]),
+      transition('* => closed', [
+        animate('1s')
+      ]),
+      transition('* => open', [
+        animate('0.5s')
+      ]),
+      transition('open <=> closed', [
+        animate('0.5s')
+      ]),
+      transition ('* => open', [
+        animate ('1s',
+          style ({ opacity: '*' }),
+        ),
+      ]),
+      transition('* => *', [
+        animate('1s')
+      ]),
+    ])
   ]
 })
 export class PanelJSComponent implements OnInit {
@@ -37,7 +54,7 @@ export class PanelJSComponent implements OnInit {
   constructor() { }
 
   ngOnInit() {
-    addEventListener('click', evt => console.log("yeet"), true);
+    addEventListener('click', evt => this.toggle(), true);
     addEventListener('touchstart', this.touchStart, true);
     addEventListener('touchmove', this.touchMove, true)
     addEventListener('touchend', this.touchMove, true)
@@ -56,12 +73,12 @@ export class PanelJSComponent implements OnInit {
 
   touchStart(ev) {
     console.log(ev.changedTouches[0].clientY);
-    this.toggle()
+    //this.toggle()
   }
   touchMove(ev) {
     this.pos = ev.touches[0].clientY;
     console.log(this.pos);
-    this.toggle()
+    //this.toggle()
   }
   touchEnd(ev) {
     console.log(ev);
