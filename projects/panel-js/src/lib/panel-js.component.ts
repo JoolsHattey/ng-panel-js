@@ -41,6 +41,7 @@ export class PanelJsComponent implements OnInit {
       
       this.color = color;
     });
+    //this.panelService.snapPosObs.subscribe(snap => console.log(snap));
   }
   ngAfterViewInit() {
     console.log(this.panelScroll)

@@ -17,7 +17,7 @@ export class PanelJsService {
   touchPosObs = new BehaviorSubject(100);
   currentTouchPos = this.touchPosObs.asObservable();
 
-  snapPosObs = new BehaviorSubject(null);
+  snapPosObs = new BehaviorSubject(0);
   currentSnapPos = this.snapPosObs.asObservable();
 
   transitionSpeedObs = new BehaviorSubject("0s");
