@@ -1,33 +1,31 @@
-import { Injectable, ViewChild, ElementRef } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { Injectable } from '@angular/core';
+import { BehaviorSubject, Subject, Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PanelJsService {
 
-
-
   currentState;
   pos: number = 100;
 
-  posObs = new BehaviorSubject(100);
-  currentPos = this.posObs.asObservable();
+  positionSubject: Subject<number> = new BehaviorSubject(100);
+  currentPos: Observable<number> = this.positionSubject.asObservable();
 
-  touchPosObs = new BehaviorSubject(100);
-  currentTouchPos = this.touchPosObs.asObservable();
+  touchPosSubject: Subject<number> = new BehaviorSubject(100);
+  currentTouchPos: Observable<number> = this.touchPosSubject.asObservable();
 
-  snapPosObs = new BehaviorSubject(0);
-  currentSnapPos = this.snapPosObs.asObservable();
+  snapPosSubject: Subject<number> = new BehaviorSubject(0);
+  currentSnapPos: Observable<number> = this.snapPosSubject.asObservable();
 
-  transitionSpeedObs = new BehaviorSubject("0s");
-  currentTransitionSpeed = this.transitionSpeedObs.asObservable();
+  transitionSpeedSubject: Subject<string> = new BehaviorSubject("0s");
+  currentTransitionSpeed: Observable<string>= this.transitionSpeedSubject.asObservable();
 
-  lockObs = new BehaviorSubject(false);
-  currentLock = this.lockObs.asObservable();
+  lockSubject: Subject<boolean> = new BehaviorSubject(false);
+  currentLock: Observable<boolean> = this.lockSubject.asObservable();
 
-  colourObs = new BehaviorSubject("red");
-  currentColour = this.colourObs.asObservable();
+  colourSubject: Subject<string> = new BehaviorSubject("red");
+  currentColour: Observable<string> = this.colourSubject.asObservable();
 
   lock: boolean;
 
@@ -46,99 +44,98 @@ export class PanelJsService {
 
   constructor() { }
 
-  init(el, ns) {
-    console.log(ns)
-    el.addEventListener('touchstart', evt => this.touchStart(evt), true);
-    el.addEventListener('touchmove', evt => this.touchMove(evt), true);
-    el.addEventListener('touchend', evt => this.touchEnd(evt), true);
-    el.addEventListener('touchcancel', evt => this.touchCancel(evt), true);
-
+  init(touchStart: Observable<TouchEvent>, touchMove: Observable<TouchEvent>, touchEnd: Observable<TouchEvent>, touchCancel: Observable<TouchEvent>) {
     const x = window.innerHeight;
     this.stage0 = 0.6 * x;
     this.stage1 = 0;
     this.anchorStage = 0.3 * x;
 
     this.pos = this.stage0;
-    this.posObs.next(this.pos);
+    this.positionSubject.next(this.pos);
 
     this.stage0Boundary = 0.5 * x;
     this.stage1Boundary = 0.3 * x;
 
     this.transitionSpeed = "0.2s";
-    this.transitionSpeedObs.next(this.transitionSpeed);
+    this.transitionSpeedSubject.next(this.transitionSpeed);
+    
+    this.touchStart(touchStart);
+    this.touchMove(touchMove);
+    this.touchEnd(touchEnd);
+    this.touchCancel(touchCancel);
   }
 
-  getCurrentPos() {
-    return this.currentPos;
-  }
+  
 
-  getCurrentTransition() {
-    return this.currentTransitionSpeed;
-  }
-
-  getLock() {
-    return this.currentLock;
-  }
-
-  getTouchPos() {
-    return this.currentTouchPos;
-  }
-
-  getCurrentColour() {
-    return this.currentColour;
-  }
+  // Set to position methods
 
   animateStage0() {
     this.pos = this.stage0;
-    this.posObs.next(this.pos);
+    this.positionSubject.next(this.pos);
   }
   
   animateStage1() {
     this.pos = this.stage1;
-    this.posObs.next(this.pos);
+    this.positionSubject.next(this.pos);
   }
 
   animateAnchorStage() {
     this.pos = this.anchorStage;
-    this.posObs.next(this.pos);
+    this.positionSubject.next(this.pos);
   }
 
-  touchStart(ev) {
-    this.transitionSpeed = "0s";
-    this.transitionSpeedObs.next(this.transitionSpeed);
-    console.log(ev.changedTouches[0].clientY);
-    this.diff = ev.changedTouches[0].clientY - this.pos;
+  // Touch event listeners
+
+  touchStart(event$: Observable<TouchEvent>) {
+    event$.subscribe(ev => {
+      this.transitionSpeed = "0s";
+      this.transitionSpeedSubject.next(this.transitionSpeed);
+      this.diff = ev.changedTouches[0].clientY - this.pos;
+    });
   }
 
-  touchMove(ev) {
-    const x = ev.touches[0].clientY;
-    this.touchPosObs.next(x - this.diff);
-    if(x - this.diff <= 0 || x - this.diff >= this.stage0) {
-      this.lockObs.next(true);
-    } else {
-      this.lockObs.next(false);
-      this.pos = x - this.diff;
-      this.posObs.next(this.pos);
-    }
+  touchMove(event$: Observable<TouchEvent>) {
+    event$.subscribe(ev => {
+      const x = ev.changedTouches[0].clientY;
+      this.touchPosSubject.next(x);
+      if(x - this.diff <= 0 || x - this.diff >= this.stage0) {
+        this.lockSubject.next(true);
+      } else {
+        this.lockSubject.next(false);
+        console.log(x)
+        this.pos = x - this.diff;
+        this.positionSubject.next(this.pos);
+      }
+    });
   }
 
-  touchEnd(ev) {
-    this.transitionSpeed = "0.3s";
-    this.transitionSpeedObs.next(this.transitionSpeed);
-    console.log(ev);
-    if(this.pos > this.stage0Boundary) {
-      this.pos = this.stage0;
-      this.posObs.next(this.pos);
-      this.snapPosObs.next(0);
-      this.colourObs.next("blue");
-    } else {
-      this.pos = this.stage1;
-      this.posObs.next(this.pos);
-      this.snapPosObs.next(1);
-      this.colourObs.next("green");
-    }
+  touchEnd(event$: Observable<TouchEvent>) {
+    event$.subscribe(ev => {
+      this.transitionSpeed = "0.3s";
+      this.transitionSpeedSubject.next(this.transitionSpeed);
+      if(this.pos > this.stage0Boundary) {
+        this.pos = this.stage0;
+        this.positionSubject.next(this.pos);
+        this.snapPosSubject.next(0);
+        this.colourSubject.next("blue");
+      } else {
+        this.pos = this.stage1;
+        this.positionSubject.next(this.pos);
+        this.snapPosSubject.next(1);
+        this.colourSubject.next("green");
+      }
+    });
   }
-  touchCancel(ev) {
-    console.log(ev);
+  touchCancel(event$: Observable<TouchEvent>) {
+    event$.subscribe(ev => {
+      console.log(ev);
+    });
   }
+  
+  getCurrentPos() { return this.currentPos; }
+  getCurrentTransition() { return this.currentTransitionSpeed; }
+  getSnapPos() { return this.currentSnapPos; }
+  getLock() { return this.currentLock; }
+  getTouchPos() { return this.currentTouchPos; }
+  getCurrentColour() { return this.currentColour; }
 }
