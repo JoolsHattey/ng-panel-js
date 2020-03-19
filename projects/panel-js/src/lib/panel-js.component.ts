@@ -1,44 +1,27 @@
-import { Component, OnInit, ElementRef, ViewChild, ContentChild } from '@angular/core';
+import { Component, OnInit, ElementRef, ContentChild } from '@angular/core';
 import { PanelJsService } from './panel-js.service';
-import {
-  trigger,
-  state,
-  style,
-  animate,
-  transition,
-  // ...
-} from '@angular/animations';
 
 @Component({
   selector: 'panel-js',
   template: '<ng-content #panelScroll></ng-content>',
   host: {
     "[style.transform]":"'translateY('+pos+'px)'",
-    "[style.transition]":"transitionSpeed", 
+    "[style.transition]":"transitionSpeed",
+    "[style.backgroundColor]":"transitionSpeed",
     "[style.display]":"'block'"
   },
-  animations: [
-    state('stage2', style({
-      transition: 'translateY(0)'
-    })),
-    state('stage1', style({
-      transition: `translateY(${window.innerHeight*0.5})`
-    })),
-    state('stage0', style({
-      transition: `translateY('+pos+'px)`
-    })),
-  ],
   styleUrls: ['./panel-js.component.scss']
 })
 export class PanelJsComponent implements OnInit {
 
-  @ContentChild('panelScroll', { static: false }) 
+  @ContentChild('panelScroll') 
   panelScroll: ElementRef;
 
   pos: number = 100;
   transitionSpeed: string;
+  color: string = "purple;"
 
-  constructor(private panelService: PanelJsService, private elementRef: ElementRef, private hamme: hammer) { }
+  constructor(private panelService: PanelJsService, private elementRef: ElementRef) { }
 
   ngOnInit() {
     console.log(this.panelScroll)
@@ -55,6 +38,8 @@ export class PanelJsComponent implements OnInit {
       } else {
         this.elementRef.nativeElement.style.backgroundColor = color
       }
+      
+      this.color = color;
     });
   }
   ngAfterViewInit() {

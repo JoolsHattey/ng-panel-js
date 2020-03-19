@@ -17,6 +17,9 @@ export class PanelJsService {
   touchPosObs = new BehaviorSubject(100);
   currentTouchPos = this.touchPosObs.asObservable();
 
+  snapPosObs = new BehaviorSubject(null);
+  currentSnapPos = this.snapPosObs.asObservable();
+
   transitionSpeedObs = new BehaviorSubject("0s");
   currentTransitionSpeed = this.transitionSpeedObs.asObservable();
 
@@ -51,16 +54,15 @@ export class PanelJsService {
     el.addEventListener('touchcancel', evt => this.touchCancel(evt), true);
 
     const x = window.innerHeight;
-    this.stage0 = 0.8 * x;
-    this.stage1 = 0.5 * x;
-    this.stage2 = 0;
+    this.stage0 = 0.6 * x;
+    this.stage1 = 0;
     this.anchorStage = 0.3 * x;
 
     this.pos = this.stage0;
     this.posObs.next(this.pos);
 
-    this.stage0Boundary = 0.7 * x;
-    this.stage1Boundary = 0.2 * x;
+    this.stage0Boundary = 0.5 * x;
+    this.stage1Boundary = 0.3 * x;
 
     this.transitionSpeed = "0.2s";
     this.transitionSpeedObs.next(this.transitionSpeed);
@@ -78,11 +80,6 @@ export class PanelJsService {
     return this.currentLock;
   }
 
-  anchorPage() {
-    this.pos = this.anchorStage;
-    this.posObs.next(this.pos);
-  }
-
   getTouchPos() {
     return this.currentTouchPos;
   }
@@ -91,41 +88,54 @@ export class PanelJsService {
     return this.currentColour;
   }
 
+  animateStage0() {
+    this.pos = this.stage0;
+    this.posObs.next(this.pos);
+  }
+  
+  animateStage1() {
+    this.pos = this.stage1;
+    this.posObs.next(this.pos);
+  }
+
+  animateAnchorStage() {
+    this.pos = this.anchorStage;
+    this.posObs.next(this.pos);
+  }
+
   touchStart(ev) {
     this.transitionSpeed = "0s";
     this.transitionSpeedObs.next(this.transitionSpeed);
     console.log(ev.changedTouches[0].clientY);
     this.diff = ev.changedTouches[0].clientY - this.pos;
   }
+
   touchMove(ev) {
     const x = ev.touches[0].clientY;
     this.touchPosObs.next(x - this.diff);
-    if(x - this.diff <= 0) {
+    if(x - this.diff <= 0 || x - this.diff >= this.stage0) {
       this.lockObs.next(true);
     } else {
       this.lockObs.next(false);
       this.pos = x - this.diff;
       this.posObs.next(this.pos);
     }
-
-    
   }
+
   touchEnd(ev) {
-    this.transitionSpeed = "0.2s";
+    this.transitionSpeed = "0.3s";
     this.transitionSpeedObs.next(this.transitionSpeed);
     console.log(ev);
     if(this.pos > this.stage0Boundary) {
       this.pos = this.stage0;
       this.posObs.next(this.pos);
+      this.snapPosObs.next(0);
       this.colourObs.next("blue");
-    } else if(this.pos > this.stage1Boundary) {
+    } else {
       this.pos = this.stage1;
       this.posObs.next(this.pos);
+      this.snapPosObs.next(1);
       this.colourObs.next("green");
-    } else {
-      this.pos = this.stage2;
-      this.posObs.next(this.pos);
-      this.colourObs.next("brown");
     }
   }
   touchCancel(ev) {

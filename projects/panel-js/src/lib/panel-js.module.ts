@@ -1,10 +1,11 @@
-import { NgModule, Injector } from '@angular/core';
+import { NgModule, Injector, Injectable } from '@angular/core';
 import { createCustomElement } from '@angular/elements';
 import { PanelJsComponent } from './panel-js.component';
 
 import { HammerGestureConfig, HAMMER_GESTURE_CONFIG } from '@angular/platform-browser';
 
 
+@Injectable()
 export class MyHammerConfig extends HammerGestureConfig  {
   overrides = <any>{
       'swipe': {velocity: 0.4, threshold: 20} // override default settings
@@ -26,7 +27,7 @@ export class PanelJsModule {
   constructor(private injector: Injector) {}
 
   ngDoBootstrap() {
-    const ngElement = createCustomElement(PanelJsComponent, {injector: this.injector});
+    const ngElement = <any> createCustomElement(PanelJsComponent, {injector: this.injector});
 
     customElements.define('panel-js', ngElement);
   }

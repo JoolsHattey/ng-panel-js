@@ -14,6 +14,11 @@
           "options": {
             "tsConfig": "projects/panel-js/tsconfig.lib.json",
             "project": "projects/panel-js/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/panel-js/tsconfig.lib.prod.json"
+            }
           }
         },
         "test": {
@@ -37,6 +42,10 @@
           }
         }
       }
-    }},
-  "defaultProject": "panel-js"
+    }
+  },
+  "defaultProject": "panel-js",
+  "cli": {
+    "analytics": "a089fc5a-44c6-4ec5-b9a0-b97ec5f6e1e8"
+  }
 }
