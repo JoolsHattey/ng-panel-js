@@ -58,7 +58,7 @@ export class PanelJsService {
       touchEndEvent: Observable<TouchEvent>, touchCancelEvent: Observable<TouchEvent>
     ) {
     const x = window.innerHeight;
-    this.stage0 = 0.6 * x;
+    this.stage0 = 0.5 * x;
     this.stage1 = 0;
     this.anchorStage = 0.3 * x;
 
@@ -92,31 +92,32 @@ export class PanelJsService {
   // Set to position methods
 
   animateStage0() {
+    this.snapPosSubject.next(0);
+    this.colourSubject.next("blue");
     this.anchorLock = false;
     this.lockSubject.next(false);
     this.pos = this.stage0;
-    this.positionSubject.next(this.pos);5
-    this.snapPosSubject.next(0);
-    this.colourSubject.next("blue");
+    this.positionSubject.next(this.pos);
     this.currentState = 0;
   }
   
   animateStage1() {
+    this.snapPosSubject.next(1);
+    this.colourSubject.next("green");
     this.anchorLock = false;
     this.lockSubject.next(true);
     this.pos = this.stage1;
     this.positionSubject.next(this.pos);
-    this.snapPosSubject.next(1);
-    this.colourSubject.next("green");
     this.currentState = 1;
   }
 
   animateAnchorStage() {
+    this.snapPosSubject.next(2);
+    this.colourSubject.next("yellow");
     this.anchorLock = true;
     this.pos = this.anchorStage;
     this.positionSubject.next(this.pos);
-    this.colourSubject.next("yellow");
-    this.snapPosSubject.next(2);
+    
   }
 
   // Touch event listeners
@@ -132,6 +133,7 @@ export class PanelJsService {
         if(data === document.querySelector('panel-js-scroll')) {
           this.scrollFocus = true;
         } else {
+          this.scrollFocus = false;
           //this.scrollFocus = false;
         }
       })
@@ -157,6 +159,7 @@ export class PanelJsService {
         }
         console.log(this.scrollFocus)
       }
+      // ev.preventDefault();
     });
   }
 

@@ -17,11 +17,15 @@ import 'rxjs/observable/fromEvent'
 })
 export class PanelJsComponent implements OnInit {
 
-  private pos: number = 100;
+  private pos: number = 400;
   private transitionSpeed: string;
   private color: string = "purple";
 
   constructor(private panelService: PanelJsService, private elementRef: ElementRef) { }
+
+  animateIt(pos) {
+    this.pos = pos
+  }
 
   ngOnInit() {
     const touchStart$: Observable<TouchEvent> = fromEvent(this.elementRef.nativeElement, 'touchstart')
@@ -30,7 +34,9 @@ export class PanelJsComponent implements OnInit {
     const touchCancel$: Observable<TouchEvent> = fromEvent(this.elementRef.nativeElement, 'touchcancel')
        
     this.panelService.init(touchStart$, touchMove$, touchEnd$, touchCancel$);
-    this.panelService.getCurrentPos().subscribe(pos => this.pos = pos);
+    this.panelService.getCurrentPos().subscribe(pos => {
+      this.pos = pos
+    });
     this.panelService.getCurrentTransition().subscribe(speed => this.transitionSpeed = speed);
     this.panelService.getCurrentColour().subscribe(color => {
       /* Weird ass hacky fix to get it working on Safari, if the bg colour
