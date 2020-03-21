@@ -47,6 +47,8 @@ export class PanelJsService {
 
   private startPos: number;
 
+  private anchorLock: boolean = false;
+
   constructor() { }
 
   init(
@@ -75,7 +77,6 @@ export class PanelJsService {
 
   setScrollListener(scrollPos: Observable<any>) {
     scrollPos.subscribe(pos => {
-      console.log(pos.target.scrollTop);
       if(pos.target.scrollTop > 0) {
         this.lock = true;
         this.lockSubject.next(true);
@@ -89,6 +90,7 @@ export class PanelJsService {
   // Set to position methods
 
   animateStage0() {
+    this.anchorLock = false;
     this.lockSubject.next(false);
     this.pos = this.stage0;
     this.positionSubject.next(this.pos);5
@@ -98,6 +100,7 @@ export class PanelJsService {
   }
   
   animateStage1() {
+    this.anchorLock = false;
     this.lockSubject.next(true);
     this.pos = this.stage1;
     this.positionSubject.next(this.pos);
@@ -107,6 +110,7 @@ export class PanelJsService {
   }
 
   animateAnchorStage() {
+    this.anchorLock = true;
     this.pos = this.anchorStage;
     this.positionSubject.next(this.pos);
     this.colourSubject.next("yellow");
@@ -130,9 +134,7 @@ export class PanelJsService {
       this.touchPosSubject.next(x);
 
       // Check the panel is within the screen so it can't go off page
-      if(x - this.diff <= 0 || x - this.diff >= this.stage0) {
-        //this.lockSubject.next(true);
-      } else {
+      if(!(x - this.diff <= 0 || x - this.diff >= this.stage0)) {
         if(!this.lock) {
           this.pos = x - this.diff;
           this.positionSubject.next(this.pos);  
@@ -143,28 +145,44 @@ export class PanelJsService {
 
   touchEnd(event$: Observable<TouchEvent>) {
     event$.subscribe(ev => {
-      console.log("TIME", ev.timeStamp - this.touchStartTime)
+      // Set transition speed 
       this.transitionSpeed = "0.3s";
       this.transitionSpeedSubject.next(this.transitionSpeed);
-
       
-      let distance = this.startPos - ev.changedTouches[0].clientY;
+      // Get the speed of the swipe
+      const time = ev.timeStamp - this.touchStartTime
+      const distance = Math.abs(this.startPos - ev.changedTouches[0].clientY);
+      const speed = distance / time;
 
-      if(distance === 0) {
+      if(!(this.pos === 0 || this.pos >= this.stage0)) {
 
-      } else {
-        console.log("distance: ", distance);
-        if(this.pos===0) {
-          console.log("nothing")
-        }
-        if(this.pos > this.stage0Boundary) {
-          this.animateStage0()
+        // Check if panel is anchored
+        if(this.anchorLock) {
+          if(this.pos > this.stage0Boundary) {
+            // Swipe down
+            this.animateStage0()
+          } else {
+            // Swiping up doesn't lock and drops back to anchor stage
+            this.animateAnchorStage();
+          } 
         } else {
-          this.animateStage1()
+
+          // Detect swipe if speed is fast enough
+          if(speed > 0.6) {
+            if(this.currentState === 0) {
+              this.animateStage1();
+            } else {
+              this.animateStage0();
+            }
+          } else {
+            if(this.currentState === 0) {
+              this.animateStage0();
+            } else {
+              this.animateStage1();
+            }
+          }  
         }
-        console.log(this.currentState)
       }
-      
     });
   }
 
@@ -180,4 +198,5 @@ export class PanelJsService {
   getLock() { return this.currentLock$; }
   getTouchPos() { return this.currentTouchPos$; }
   getCurrentColour() { return this.currentColour$; }
+  getStage0() { return this.stage0; }
 }

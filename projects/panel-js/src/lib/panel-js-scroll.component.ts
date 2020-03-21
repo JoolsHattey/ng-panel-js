@@ -3,11 +3,9 @@ import { PanelJsService } from './panel-js.service';
 import { Observable, fromEvent } from 'rxjs';
 
 @Component({
-  encapsulation: ViewEncapsulation.None,
   selector: 'panel-js-scroll',
   template: '<ng-content></ng-content>',
   host: {
-    // "[style.overflowY]":"overflow"
     "[style.height]":"'70vh'",
     "[style.overflowY]":"overflow",
     "[style.display]":"'block'"
