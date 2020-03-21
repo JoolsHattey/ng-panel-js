@@ -49,6 +49,8 @@ export class PanelJsService {
 
   private anchorLock: boolean = false;
 
+  private scrollFocus: boolean = false;
+
   constructor() { }
 
   init(
@@ -114,6 +116,7 @@ export class PanelJsService {
     this.pos = this.anchorStage;
     this.positionSubject.next(this.pos);
     this.colourSubject.next("yellow");
+    this.snapPosSubject.next(2);
   }
 
   // Touch event listeners
@@ -125,20 +128,34 @@ export class PanelJsService {
       this.transitionSpeed = "0s";
       this.transitionSpeedSubject.next(this.transitionSpeed);
       this.diff = ev.changedTouches[0].clientY - this.pos;
+      ev.composedPath().some(data => {
+        if(data === document.querySelector('panel-js-scroll')) {
+          this.scrollFocus = true;
+        } else {
+          //this.scrollFocus = false;
+        }
+      })
     });
   }
 
   touchMove(event$: Observable<TouchEvent>) {
     event$.subscribe(ev => {
       const x = ev.changedTouches[0].clientY;
-      this.touchPosSubject.next(x);
+      this.touchPosSubject.next(x - this.diff);
 
+      // Animate to the top if the touch point as at top
+      if(x - this.diff <= 0) {
+        this.animateStage1();
+        console.log("yiss")
+      }
       // Check the panel is within the screen so it can't go off page
-      if(!(x - this.diff <= 0 || x - this.diff >= this.stage0)) {
+      else if(!(x - this.diff <= 0 || x - this.diff >= this.stage0)) {
         if(!this.lock) {
           this.pos = x - this.diff;
-          this.positionSubject.next(this.pos);  
+          this.positionSubject.next(this.pos);
+          
         }
+        console.log(this.scrollFocus)
       }
     });
   }
