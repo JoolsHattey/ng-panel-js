@@ -6,7 +6,6 @@ import { Observable, fromEvent } from 'rxjs';
   selector: 'panel-js-scroll',
   template: '<ng-content></ng-content>',
   host: {
-    "[style.height]":"'70vh'",
     "[style.overflowY]":"overflow",
     "[style.display]":"'block'"
   },

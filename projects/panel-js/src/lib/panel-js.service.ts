@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, HostListener } from '@angular/core';
 import { BehaviorSubject, Subject, Observable } from 'rxjs';
 
 @Injectable({
@@ -50,21 +50,37 @@ export class PanelJsService {
   private anchorLock: boolean = false;
 
   private scrollFocus: boolean = false;
+  private scrollPosition: number = 0;
 
-  constructor() { }
+  constructor() {}
+
+  setWindowSizeListener($windowSize: Observable<Event>) {
+    $windowSize.subscribe(ev => {
+      const x = window.innerHeight;
+      this.stage0 = 0.5 * x;
+      this.stage1 = 0;
+      this.anchorStage = 0.3 * x;
+      this.stage0Boundary = 0.3 * x;
+      this.stage1Boundary = 0.4 * x;
+      if(this.currentState===0) {
+        this.animateStage0();
+      } else {
+        this.animateStage1();
+      }
+    });
+  }
 
   init(
       touchStartEvent: Observable<TouchEvent>, touchMoveEvent: Observable<TouchEvent>, 
       touchEndEvent: Observable<TouchEvent>, touchCancelEvent: Observable<TouchEvent>
     ) {
+    this.pos = this.stage0;
+    this.positionSubject.next(this.pos);
+
     const x = window.innerHeight;
     this.stage0 = 0.5 * x;
     this.stage1 = 0;
     this.anchorStage = 0.3 * x;
-
-    this.pos = this.stage0;
-    this.positionSubject.next(this.pos);
-
     this.stage0Boundary = 0.3 * x;
     this.stage1Boundary = 0.4 * x;
 
@@ -74,11 +90,20 @@ export class PanelJsService {
     this.touchStart(touchStartEvent);
     this.touchMove(touchMoveEvent);
     this.touchEnd(touchEndEvent);
-    this.touchCancel(touchCancelEvent);
+    this.touchCancel(touchCancelEvent); 
+
+    this.animateStage0();
   }
 
   setScrollListener(scrollPos: Observable<any>) {
     scrollPos.subscribe(pos => {
+      if(this.scrollFocus) {
+
+      } else {
+        this.scrollPosition = pos.target.scrollTop;
+        this.scrollFocus = true;
+      }
+      
       if(pos.target.scrollTop > 0) {
         this.lock = true;
         this.lockSubject.next(true);
@@ -92,32 +117,31 @@ export class PanelJsService {
   // Set to position methods
 
   animateStage0() {
-    this.snapPosSubject.next(0);
-    this.colourSubject.next("blue");
     this.anchorLock = false;
     this.lockSubject.next(false);
     this.pos = this.stage0;
     this.positionSubject.next(this.pos);
     this.currentState = 0;
+    this.snapPosSubject.next(0);
+    this.colourSubject.next("blue");
   }
   
   animateStage1() {
-    this.snapPosSubject.next(1);
-    this.colourSubject.next("green");
     this.anchorLock = false;
     this.lockSubject.next(true);
     this.pos = this.stage1;
     this.positionSubject.next(this.pos);
     this.currentState = 1;
+    this.snapPosSubject.next(1);
+    this.colourSubject.next("green");
   }
 
   animateAnchorStage() {
-    this.snapPosSubject.next(2);
-    this.colourSubject.next("yellow");
     this.anchorLock = true;
     this.pos = this.anchorStage;
     this.positionSubject.next(this.pos);
-    
+    this.snapPosSubject.next(2);
+    this.colourSubject.next("yellow");
   }
 
   // Touch event listeners
@@ -130,12 +154,12 @@ export class PanelJsService {
       this.transitionSpeedSubject.next(this.transitionSpeed);
       this.diff = ev.changedTouches[0].clientY - this.pos;
       ev.composedPath().some(data => {
-        if(data === document.querySelector('panel-js-scroll')) {
-          this.scrollFocus = true;
-        } else {
-          this.scrollFocus = false;
-          //this.scrollFocus = false;
-        }
+        // if(data === document.querySelector('panel-js-scroll')) {
+        //   this.scrollFocus = true;
+        // } else {
+        //   this.scrollFocus = false;
+        //   //this.scrollFocus = false;
+        // }
       })
     });
   }
@@ -147,24 +171,27 @@ export class PanelJsService {
 
       // Animate to the top if the touch point as at top
       if(x - this.diff <= 0) {
-        this.animateStage1();
-        console.log("yiss")
+        if(!this.anchorLock) {
+          this.animateStage1();
+          console.log("yiss")
+        }
+        
       }
       // Check the panel is within the screen so it can't go off page
       else if(!(x - this.diff <= 0 || x - this.diff >= this.stage0)) {
         if(!this.lock) {
           this.pos = x - this.diff;
           this.positionSubject.next(this.pos);
-          
         }
-        console.log(this.scrollFocus)
       }
-      // ev.preventDefault();
     });
   }
 
   touchEnd(event$: Observable<TouchEvent>) {
     event$.subscribe(ev => {
+
+      this.scrollFocus = false;
+
       // Set transition speed 
       this.transitionSpeed = "0.3s";
       this.transitionSpeedSubject.next(this.transitionSpeed);

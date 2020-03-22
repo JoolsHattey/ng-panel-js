@@ -28,10 +28,13 @@ export class PanelJsComponent implements OnInit {
   }
 
   ngOnInit() {
-    const touchStart$: Observable<TouchEvent> = fromEvent(this.elementRef.nativeElement, 'touchstart')
-    const touchMove$: Observable<TouchEvent> = fromEvent(this.elementRef.nativeElement, 'touchmove')
-    const touchEnd$: Observable<TouchEvent> = fromEvent(this.elementRef.nativeElement, 'touchend')
-    const touchCancel$: Observable<TouchEvent> = fromEvent(this.elementRef.nativeElement, 'touchcancel')
+    const touchStart$: Observable<TouchEvent> = fromEvent(this.elementRef.nativeElement, 'touchstart');
+    const touchMove$: Observable<TouchEvent> = fromEvent(this.elementRef.nativeElement, 'touchmove');
+    const touchEnd$: Observable<TouchEvent> = fromEvent(this.elementRef.nativeElement, 'touchend');
+    const touchCancel$: Observable<TouchEvent> = fromEvent(this.elementRef.nativeElement, 'touchcancel');
+    const windowResize$: Observable<Event> = fromEvent(window, 'resize');
+    
+    this.panelService.setWindowSizeListener(windowResize$);
        
     this.panelService.init(touchStart$, touchMove$, touchEnd$, touchCancel$);
     this.panelService.getCurrentPos().subscribe(pos => {
