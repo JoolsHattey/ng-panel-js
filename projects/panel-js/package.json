@@ -2,9 +2,9 @@
   "name": "panel-js",
   "version": "0.0.1",
   "peerDependencies": {
-    "@angular/common": "^9.0.7",
-    "@angular/core": "^9.0.7",
-    "@angular/elements": "^9.0.7",
+    "@angular/common": "^9.1.0",
+    "@angular/core": "^9.1.0",
+    "@angular/elements": "^9.1.0",
     "rxjs": "^6.5.4",
     "hammerjs": "^2.0.8"
   }
