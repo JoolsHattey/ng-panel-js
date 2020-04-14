@@ -17,17 +17,20 @@ import 'rxjs/observable/fromEvent'
 })
 export class PanelJsComponent implements OnInit {
 
-  private pos: number = 400;
+  private pos: number;
   private transitionSpeed: string;
   private color: string = "purple";
 
-  constructor(private panelService: PanelJsService, private elementRef: ElementRef) { }
+  constructor(private panelService: PanelJsService, private elementRef: ElementRef) {
+    this.pos = panelService.getStage0();
+  }
 
   animateIt(pos) {
     this.pos = pos
   }
 
   ngOnInit() {
+    
     const touchStart$: Observable<TouchEvent> = fromEvent(this.elementRef.nativeElement, 'touchstart');
     const touchMove$: Observable<TouchEvent> = fromEvent(this.elementRef.nativeElement, 'touchmove');
     const touchEnd$: Observable<TouchEvent> = fromEvent(this.elementRef.nativeElement, 'touchend');

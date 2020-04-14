@@ -94,7 +94,7 @@ export class PanelJsService {
     this.anchorStage = 0.3 * x;
     this.stageBoundary = this.stage0/2;
 
-    this.transitionSpeed = "0.2s";
+    this.transitionSpeed = "0s";
     this.transitionSpeedSubject.next(this.transitionSpeed);
 
     this.touchStart(touchStartEvent);
