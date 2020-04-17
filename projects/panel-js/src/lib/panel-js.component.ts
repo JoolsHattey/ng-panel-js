@@ -18,7 +18,7 @@ import 'rxjs/observable/fromEvent'
 export class PanelJsComponent implements OnInit {
 
   private pos: number;
-  private transitionSpeed: string;
+  private transitionSpeed: string = '0';
   private color: string = "purple";
 
   constructor(private panelService: PanelJsService, private elementRef: ElementRef) {

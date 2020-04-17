@@ -27,8 +27,13 @@ export class PanelJsService {
   private lockSubject: Subject<boolean> = new BehaviorSubject(false);
   private currentLock$: Observable<boolean> = this.lockSubject.asObservable();
 
+  private scrollLockSubject: Subject<boolean> = new BehaviorSubject(false);
+  private currentScrollLock$: Observable<boolean> = this.scrollLockSubject.asObservable();
+
   private colourSubject: Subject<string> = new BehaviorSubject("red");
   private currentColour$: Observable<string> = this.colourSubject.asObservable();
+
+  private swipeEvents: Subject<string> = new Subject<string>();
 
   private lock: boolean;
 
@@ -50,6 +55,7 @@ export class PanelJsService {
   private anchorLock: boolean = false;
 
   private scrollFocus: boolean = false;
+  private scrollFocus2: boolean = false;
   private scrollPosition: number = 0;
 
   constructor() {}
@@ -85,24 +91,18 @@ export class PanelJsService {
       touchStartEvent: Observable<TouchEvent>, touchMoveEvent: Observable<TouchEvent>, 
       touchEndEvent: Observable<TouchEvent>, touchCancelEvent: Observable<TouchEvent>
     ) {
-    this.pos = this.stage0;
-    this.positionSubject.next(this.pos);
-
     const x = window.innerHeight;
     this.stage0 = 0.5 * x;
     this.stage1 = 0;
     this.anchorStage = 0.3 * x;
     this.stageBoundary = this.stage0/2;
 
-    this.transitionSpeed = "0s";
-    this.transitionSpeedSubject.next(this.transitionSpeed);
+    this.animateStage0();
 
     this.touchStart(touchStartEvent);
     this.touchMove(touchMoveEvent);
     this.touchEnd(touchEndEvent);
-    this.touchCancel(touchCancelEvent); 
-
-    this.animateStage0();
+    this.touchCancel(touchCancelEvent);
   }
 
   /**
@@ -111,18 +111,21 @@ export class PanelJsService {
    */
   setScrollListener(scrollPos: Observable<any>) {
     scrollPos.subscribe(pos => {
-      if(this.scrollFocus) {
+      if(this.scrollFocus2) {
 
       } else {
         this.scrollPosition = pos.target.scrollTop;
-        this.scrollFocus = true;
+        this.scrollFocus2 = true;
       }
+      
       
       if(pos.target.scrollTop > 0) {
         this.lock = true;
         this.lockSubject.next(true);
+        this.scrollLockSubject.next(true);
       } else {
         this.lockSubject.next(false);
+        this.scrollLockSubject.next(false);
         this.lock = false;
       }
     });
@@ -133,6 +136,7 @@ export class PanelJsService {
   animateStage0() {
     this.anchorLock = false;
     this.lockSubject.next(false);
+    this.scrollLockSubject.next(false);
     this.pos = this.stage0;
     this.positionSubject.next(this.pos);
     this.currentState = 0;
@@ -141,8 +145,9 @@ export class PanelJsService {
   }
   
   animateStage1() {
-    this.anchorLock = false;
+    // this.anchorLock = false;
     this.lockSubject.next(true);
+    this.scrollLockSubject.next(true);
     this.pos = this.stage1;
     this.positionSubject.next(this.pos);
     this.currentState = 1;
@@ -151,6 +156,7 @@ export class PanelJsService {
   }
 
   animateAnchorStage() {
+    this.transitionSpeedSubject.next('0.3s');
     this.anchorLock = true;
     this.pos = this.anchorStage;
     this.positionSubject.next(this.pos);
@@ -173,12 +179,13 @@ export class PanelJsService {
       this.transitionSpeedSubject.next(this.transitionSpeed);
       this.diff = ev.changedTouches[0].clientY - this.pos;
       ev.composedPath().some(data => {
-        // if(data === document.querySelector('panel-js-scroll')) {
-        //   this.scrollFocus = true;
-        // } else {
-        //   this.scrollFocus = false;
-        //   //this.scrollFocus = false;
-        // }
+        console.log(data)
+        if(data === document.querySelector('panel-js-scroll')) {
+          this.scrollFocus = true;
+          return true
+        } else {
+          this.scrollFocus = false;
+        }
       })
     });
   }
@@ -189,20 +196,22 @@ export class PanelJsService {
    */
   touchMove(event$: Observable<TouchEvent>) {
     event$.subscribe(ev => {
-      const x = ev.changedTouches[0].clientY;
+      let x = ev.changedTouches[0].clientY;
+      if(this.scrollFocus) x -= this.scrollPosition
       this.touchPosSubject.next(x - this.diff);
 
       // Animate to the top if the touch point as at top
       if(x - this.diff <= 0) {
+        
         if(!this.anchorLock) {
           this.animateStage1();
-          console.log("yiss")
+
         }
         
       }
       // Check the panel is within the screen so it can't go off page
       else if(!(x - this.diff <= 0 || x - this.diff >= this.stage0)) {
-        if(!this.lock) {
+        if(!this.lock || !this.scrollFocus) {
           this.pos = x - this.diff;
           this.positionSubject.next(this.pos);
         }
@@ -237,33 +246,47 @@ export class PanelJsService {
 
       if(!(distance <= 0 || this.pos >= this.stage0)) {
 
-        // Check if panel is anchored
-        if(this.anchorLock) {
-          if(this.pos > this.stageBoundary) {
-            // Swipe down
-            this.animateStage0()
-          } else {
-            // Swiping up doesn't lock and drops back to anchor stage
-            this.animateAnchorStage();
-          } 
-        } else {
-          // Detect swipe if speed is fast enough
-          if(speed > 0.6) {
-            if(direction === "up") {
-              this.animateStage1();
-            } else {
-              this.animateStage0();
+        if(!this.lock || !this.scrollFocus) {
+          // Check if panel is anchored
+          if(this.anchorLock) {
+            if(speed > 0.6) {
+              if(direction === "up") {
+                this.swipeEvents.next('up');
+                this.animateStage1()
+              } else {
+                if(this.pos > this.stageBoundary) {
+                  // Swipe down
+                  this.animateStage0()
+                  this.swipeEvents.next('down');
+                } else {
+                  // Swiping up doesn't lock and drops back to anchor stage
+                  this.animateAnchorStage();
+                }
+              }
             }
+
           } else {
-            // If swipe is not detected, animate to the closest stage
-            if(this.pos < this.stageBoundary) {
-              this.animateStage1();
+            // Detect swipe if speed is fast enough
+            if(speed > 0.6) {
+              if(direction === "up") {
+                this.swipeEvents.next('up');
+                this.animateStage1();
+              } else {
+                this.swipeEvents.next('down');
+                this.animateStage0();
+              }
             } else {
-              this.animateStage0();
+              // If swipe is not detected, animate to the closest stage
+              if(this.pos < this.stageBoundary) {
+                this.animateStage1();
+              } else {
+                this.animateStage0();
+              }
             }
-          }
+          }          
         }
       }
+      this.scrollFocus2 = false;
     });
   }
 
@@ -281,7 +304,9 @@ export class PanelJsService {
   getCurrentTransition() { return this.currentTransitionSpeed$; }
   getSnapPos() { return this.currentSnapPos$; }
   getLock() { return this.currentLock$; }
+  getScrollLock() { return this.currentScrollLock$; }
   getTouchPos() { return this.currentTouchPos$; }
   getCurrentColour() { return this.currentColour$; }
   getStage0() { return this.stage0; }
+  getSwipeEvents() { return this.swipeEvents; }
 }

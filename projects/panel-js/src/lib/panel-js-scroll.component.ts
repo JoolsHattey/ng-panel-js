@@ -7,13 +7,15 @@ import { Observable, fromEvent } from 'rxjs';
   template: '<ng-content></ng-content>',
   host: {
     "[style.overflowY]":"overflow",
-    "[style.display]":"'block'"
+    "[style.display]":"'block'",
+    "[style.transform]":"'translateY('+scrollPos+'px)'"
   },
   styleUrls: ['./panel-js-scroll.component.css']
 })
 export class PanelJsScrollComponent implements OnInit {
 
   private overflow: string;
+  private scrollPos: number;
 
   constructor(private panelService: PanelJsService, private elementRef: ElementRef) { }
 
@@ -21,7 +23,7 @@ export class PanelJsScrollComponent implements OnInit {
     console.log("panel scroll init")
     const scrollEvent$: Observable<Event> = fromEvent(this.elementRef.nativeElement, 'scroll');
     this.panelService.setScrollListener(scrollEvent$);
-    this.panelService.getLock().subscribe(lock => {
+    this.panelService.getScrollLock().subscribe(lock => {
       if(lock) {
         this.overflow = "scroll";
       } else {
