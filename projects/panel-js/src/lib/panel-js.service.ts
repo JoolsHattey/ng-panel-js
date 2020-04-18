@@ -1,4 +1,4 @@
-import { Injectable, HostListener } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { BehaviorSubject, Subject, Observable } from 'rxjs';
 
 @Injectable({
@@ -197,7 +197,7 @@ export class PanelJsService {
   touchMove(event$: Observable<TouchEvent>) {
     event$.subscribe(ev => {
       let x = ev.changedTouches[0].clientY;
-      if(this.scrollFocus) x -= this.scrollPosition
+      if(this.scrollFocus && this.currentState === 1) x -= this.scrollPosition
       this.touchPosSubject.next(x - this.diff);
 
       // Animate to the top if the touch point as at top
@@ -225,9 +225,6 @@ export class PanelJsService {
    */
   touchEnd(event$: Observable<TouchEvent>) {
     event$.subscribe(ev => {
-
-      this.scrollFocus = false;
-
       // Set transition speed 
       this.transitionSpeed = "0.3s";
       this.transitionSpeedSubject.next(this.transitionSpeed);
@@ -243,6 +240,8 @@ export class PanelJsService {
       }
       const distance = Math.abs(diff);
       const speed = distance / time;
+
+      console.log(this.lock, this.scrollFocus)
 
       if(!(distance <= 0 || this.pos >= this.stage0)) {
 
@@ -262,6 +261,14 @@ export class PanelJsService {
                   // Swiping up doesn't lock and drops back to anchor stage
                   this.animateAnchorStage();
                 }
+              }
+            } else {
+              if(this.pos > this.stageBoundary) {
+                this.animateStage0();
+              } else if(this.pos > this.anchorStage / 2) {
+                this.animateAnchorStage();
+              } else {
+                this.animateStage1();
               }
             }
 
@@ -287,6 +294,7 @@ export class PanelJsService {
         }
       }
       this.scrollFocus2 = false;
+      this.scrollFocus = false;
     });
   }
 

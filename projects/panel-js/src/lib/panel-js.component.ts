@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, Input } from '@angular/core';
 import { PanelJsService } from './panel-js.service';
 import { Observable, fromEvent } from 'rxjs';
 import 'rxjs/observable/fromEvent'
@@ -16,6 +16,8 @@ import 'rxjs/observable/fromEvent'
   styleUrls: ['./panel-js.component.scss']
 })
 export class PanelJsComponent implements OnInit {
+
+  // ngStyle = "{'transform': 'translateY('pos$ | async')' }"
 
   private pos: number;
   private transitionSpeed: string = '0';
