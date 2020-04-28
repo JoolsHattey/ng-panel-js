@@ -265,6 +265,7 @@ export class PanelJsService {
             } else {
               if(this.pos > this.stageBoundary) {
                 this.animateStage0();
+                this.swipeEvents.next('down');
               } else if(this.pos > this.anchorStage / 2) {
                 this.animateAnchorStage();
               } else {
@@ -285,8 +286,10 @@ export class PanelJsService {
             } else {
               // If swipe is not detected, animate to the closest stage
               if(this.pos < this.stageBoundary) {
+                this.swipeEvents.next('up');
                 this.animateStage1();
               } else {
+                this.swipeEvents.next('down');
                 this.animateStage0();
               }
             }
