@@ -2,12 +2,23 @@ import { NgModule, Injector } from '@angular/core';
 import { createCustomElement } from '@angular/elements';
 import { PanelJsComponent } from './panel-js.component';
 import { PanelJsScrollComponent } from './panel-js-scroll.component';
+import { HammerModule, HammerGestureConfig, HAMMER_GESTURE_CONFIG } from '@angular/platform-browser';
+
+export class PanelHammerConfig extends HammerGestureConfig {
+  overrides = <any>{
+    'pan': {threshold: 0}
+  }
+}
 
 @NgModule({
   declarations: [PanelJsComponent, PanelJsScrollComponent],
-  imports: [],
+  imports: [HammerModule],
   entryComponents: [PanelJsComponent, PanelJsScrollComponent],
   exports: [PanelJsComponent, PanelJsScrollComponent],
+  providers: [{
+    provide: HAMMER_GESTURE_CONFIG,
+    useClass: PanelHammerConfig
+  }]
 })
 export class PanelJsModule {
   constructor(private injector: Injector) {}
@@ -20,3 +31,4 @@ export class PanelJsModule {
     customElements.define('panel-js-scroll', panelScroll);
   }
 }
+

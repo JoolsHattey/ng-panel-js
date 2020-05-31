@@ -1,6 +1,7 @@
 /*
  * Public API Surface of panel-js
  */
+import 'hammerjs';
 
 export * from './lib/panel-js.service';
 export * from './lib/panel-js.component';

@@ -179,7 +179,6 @@ export class PanelJsService {
       this.transitionSpeedSubject.next(this.transitionSpeed);
       this.diff = ev.changedTouches[0].clientY - this.pos;
       ev.composedPath().some(data => {
-        console.log(data)
         if(data === document.querySelector('panel-js-scroll')) {
           this.scrollFocus = true;
           return true
@@ -241,7 +240,6 @@ export class PanelJsService {
       const distance = Math.abs(diff);
       const speed = distance / time;
 
-      console.log(this.lock, this.scrollFocus)
 
       if(!(distance <= 0 || this.pos >= this.stage0)) {
 
