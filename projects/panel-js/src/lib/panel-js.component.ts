@@ -17,21 +17,21 @@ import { Subject, BehaviorSubject } from 'rxjs';
 })
 export class PanelJsComponent implements OnInit {
 
-  private pos: number;
-  private transitionSpeed: string = '0s';
-  
   private startPos: number;
   private stage0: number = window.innerHeight / 2;
   private stage1: number = 0;
   private stageBoundary: number = this.stage0 / 2;
-  private currentStage: number = 1;
+  private currentStage: number = 0;
+  
+  private pos: number = this.stage0;
+  private transitionSpeed: string = '0s';
 
   // Used to fix iOS propogation bug
   private colour: string = "purple";
   private colourSubject: Subject<string> = new BehaviorSubject("red");
 
   constructor(private panelService: PanelJsService) {
-    this.pos = panelService.getStage0();
+    // this.pos = panelService.getStage0();
   }
 
   @HostListener('panstart', ['$event']) panstart(event: HammerInput) {
