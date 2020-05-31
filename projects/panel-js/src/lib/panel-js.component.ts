@@ -1,7 +1,5 @@
-import { Component, ElementRef, OnInit, Input, HostListener } from '@angular/core';
+import { Component, ElementRef, OnInit, HostListener } from '@angular/core';
 import { PanelJsService } from './panel-js.service';
-import { Observable, fromEvent } from 'rxjs';
-import 'rxjs/observable/fromEvent'
 
 
 @Component({
@@ -19,10 +17,9 @@ import 'rxjs/observable/fromEvent'
 export class PanelJsComponent implements OnInit {
 
   private pos: number;
-  private transitionSpeed: string = '0';
+  private transitionSpeed: string = '0s';
   private color: string = "purple";
-  private currentPos: number = 0;
-  private startPos;
+  private startPos: number;
   private stage0: number = window.innerHeight / 2;
   private stage1: number = 0;
 
@@ -31,17 +28,17 @@ export class PanelJsComponent implements OnInit {
   }
 
   @HostListener('panstart', ['$event']) panstart(event: HammerInput) {
+    this.transitionSpeed = '0s';
     this.startPos = event.deltaY - this.pos;
   }
 
   @HostListener('panmove', ['$event']) panmove(event: HammerInput) {
-    // console.log(event.center.y)
-    console.log(event.deltaY)
     this.pos = event.deltaY - this.startPos;
   }
 
   @HostListener('panend', ['$event']) panend(event: HammerInput) {
-    if (event.velocity > 0.5) {
+    this.transitionSpeed = '0.3s';
+    if (Math.abs(event.velocity) > 0.5) {
       if (event.direction === 16) {
         this.animateStage0();
       } else if (event.direction === 8) {
@@ -49,15 +46,15 @@ export class PanelJsComponent implements OnInit {
       }
     } else {
       if (event.direction === 16) {
-        this.animateStage0();
-      } else if (event.direction === 16) {
         this.animateStage1();
+      } else if (event.direction === 8) {
+        this.animateStage0();
       }
     }
   }
 
   animateStage1() {
-    this.pos = this.stage0;
+    this.pos = this.stage1;
   }
   animateStage0() {
     this.pos = this.stage0
