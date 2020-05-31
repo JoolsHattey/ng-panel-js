@@ -23,7 +23,7 @@ export class PanelJsComponent implements OnInit {
   private stage0: number = window.innerHeight / 2;
   private stage1: number = 0;
 
-  constructor(private panelService: PanelJsService, private elementRef: ElementRef) {
+  constructor(private panelService: PanelJsService) {
     this.pos = panelService.getStage0();
   }
 
@@ -33,7 +33,11 @@ export class PanelJsComponent implements OnInit {
   }
 
   @HostListener('panmove', ['$event']) panmove(event: HammerInput) {
-    this.pos = event.deltaY - this.startPos;
+    // Prevent panel from going out of boundaries
+    const touchPos = event.deltaY - this.startPos;
+    if (touchPos > 0 && touchPos < this.stage0) {
+      this.pos = touchPos;
+    }
   }
 
   @HostListener('panend', ['$event']) panend(event: HammerInput) {
@@ -82,7 +86,7 @@ export class PanelJsComponent implements OnInit {
       /* Weird ass hacky fix to get it working on Safari, if the bg colour
         isn't the colour passed thru, make it purple, tbh this shouldn't work
         but it does, so dont fuckin break it please */
-      if(this.elementRef.nativeElement.style.backgroundColor === color) {
+      if(this.color === color) {
         this.color = "purple";
       } else {
         this.color = color
