@@ -1,5 +1,6 @@
 import { Component, OnInit, HostListener } from '@angular/core';
 import { PanelJsService } from './panel-js.service';
+import { Subject, BehaviorSubject } from 'rxjs';
 
 
 @Component({
@@ -8,7 +9,7 @@ import { PanelJsService } from './panel-js.service';
   host: {
     "[style.transform]":"'translate3d(0, '+pos+'px, 0)'",
     "[style.transition]":"transitionSpeed",
-    "[style.backgroundColor]":"color",
+    "[style.backgroundColor]":"colour",
     "[style.display]":"'block'",
     "[style.willChange]": "'transform'"
   },
@@ -18,12 +19,16 @@ export class PanelJsComponent implements OnInit {
 
   private pos: number;
   private transitionSpeed: string = '0s';
-  private color: string = "purple";
+  
   private startPos: number;
   private stage0: number = window.innerHeight / 2;
   private stage1: number = 0;
   private stageBoundary: number = this.stage0 / 2;
   private currentStage: number = 1;
+
+  // Used to fix iOS propogation bug
+  private colour: string = "purple";
+  private colourSubject: Subject<string> = new BehaviorSubject("red");
 
   constructor(private panelService: PanelJsService) {
     this.pos = panelService.getStage0();
@@ -71,41 +76,24 @@ export class PanelJsComponent implements OnInit {
   animateStage1() {
     this.pos = this.stage1;
     this.currentStage = 1;
+    this.colourSubject.next('green');
   }
   animateStage0() {
     this.pos = this.stage0;
     this.currentStage = 0;
+    this.colourSubject.next('blue');
   }
 
   ngOnInit() {
-
-    
-    // const touchStart$: Observable<TouchEvent> = fromEvent(this.elementRef.nativeElement, 'touchstart');
-    // const touchMove$: Observable<TouchEvent> = fromEvent(this.elementRef.nativeElement, 'touchmove');
-    // const touchEnd$: Observable<TouchEvent> = fromEvent(this.elementRef.nativeElement, 'touchend');
-    // const touchCancel$: Observable<TouchEvent> = fromEvent(this.elementRef.nativeElement, 'touchcancel');
-    // const windowResize$: Observable<Event> = fromEvent(window, 'resize');
-    
-    // this.panelService.setWindowSizeListener(windowResize$);
-       
-    // this.panelService.init(touchStart$, touchMove$, touchEnd$, touchCancel$);
-    // this.panelService.getCurrentPos().subscribe(pos => {
-    //   // this.pos = pos
-    //   // this.elementRef.nativeElement.style.transform = `translate3d(0, ${pos}px, 0)`
-    // });
-
-    // this.panelService.getCurrentTransition().subscribe(speed => this.transitionSpeed = speed);
-    this.panelService.getCurrentColour().subscribe(color => {
+    this.colourSubject.asObservable().subscribe(color => {
       /* Weird ass hacky fix to get it working on Safari, if the bg colour
         isn't the colour passed thru, make it purple, tbh this shouldn't work
         but it does, so dont fuckin break it please */
-      if(this.color === color) {
-        this.color = "purple";
+      if(this.colour === color) {
+        this.colour = "purple";
       } else {
-        this.color = color
+        this.colour = color
       }
-      
-      //this.color = color;
     });
   }
 }
