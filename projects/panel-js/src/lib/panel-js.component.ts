@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, HostListener } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { PanelJsService } from './panel-js.service';
 
 
@@ -22,6 +22,8 @@ export class PanelJsComponent implements OnInit {
   private startPos: number;
   private stage0: number = window.innerHeight / 2;
   private stage1: number = 0;
+  private stageBoundary: number = this.stage0 / 2;
+  private currentStage: number = 1;
 
   constructor(private panelService: PanelJsService) {
     this.pos = panelService.getStage0();
@@ -42,26 +44,37 @@ export class PanelJsComponent implements OnInit {
 
   @HostListener('panend', ['$event']) panend(event: HammerInput) {
     this.transitionSpeed = '0.3s';
-    if (Math.abs(event.velocity) > 0.5) {
-      if (event.direction === 16) {
-        this.animateStage0();
-      } else if (event.direction === 8) {
-        this.animateStage1();
+    const speed = Math.abs(event.velocity);
+    console.log(event);
+    // Swipe down
+    if (event.offsetDirection === 16) {
+      if (this.currentStage === 1) {
+        if (speed > 0.5 || this.pos > this.stageBoundary) {
+          this.animateStage0();
+        } else {
+          this.animateStage1();
+        }
       }
-    } else {
-      if (event.direction === 16) {
-        this.animateStage1();
-      } else if (event.direction === 8) {
-        this.animateStage0();
+    }
+    // Swipe up
+    else if (event.offsetDirection === 8) {
+      if (this.currentStage === 0) {
+        if (speed > 0.5 || this.pos < this.stageBoundary) {
+          this.animateStage1();
+        } else {
+          this.animateStage0();
+        }
       }
     }
   }
 
   animateStage1() {
     this.pos = this.stage1;
+    this.currentStage = 1;
   }
   animateStage0() {
-    this.pos = this.stage0
+    this.pos = this.stage0;
+    this.currentStage = 0;
   }
 
   ngOnInit() {
