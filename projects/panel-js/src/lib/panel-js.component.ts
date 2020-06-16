@@ -35,13 +35,15 @@ export class PanelJsComponent implements OnInit {
   }
 
   @HostListener('panstart', ['$event']) panstart(event: HammerInput) {
+    event.preventDefault();
     this.transitionSpeed = '0s';
     this.startPos = event.deltaY - this.pos;
   }
 
   @HostListener('panmove', ['$event']) panmove(event: HammerInput) {
-    // Prevent panel from going out of boundaries
+    // event.srcEvent.stopPropagation();
     const touchPos = event.deltaY - this.startPos;
+    // Prevent panel from going out of boundaries
     if (touchPos > 0 && touchPos < this.stage0) {
       this.pos = touchPos;
     }
@@ -74,11 +76,13 @@ export class PanelJsComponent implements OnInit {
   }
 
   animateStage1() {
+    this.panelService.setScrollLock(true);
     this.pos = this.stage1;
     this.currentStage = 1;
     this.colourSubject.next('green');
   }
   animateStage0() {
+    this.panelService.setScrollLock(false);
     this.pos = this.stage0;
     this.currentStage = 0;
     this.colourSubject.next('blue');
@@ -86,9 +90,6 @@ export class PanelJsComponent implements OnInit {
 
   ngOnInit() {
     this.colourSubject.asObservable().subscribe(color => {
-      /* Weird ass hacky fix to get it working on Safari, if the bg colour
-        isn't the colour passed thru, make it purple, tbh this shouldn't work
-        but it does, so dont fuckin break it please */
       if(this.colour === color) {
         this.colour = "purple";
       } else {
