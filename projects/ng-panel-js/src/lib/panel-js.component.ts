@@ -18,8 +18,8 @@ import { Subject, BehaviorSubject } from 'rxjs';
 export class PanelJsComponent implements OnInit {
 
   private startPos: number;
-  private stage0: number = window.innerHeight / 2;
-  private stage1: number = 0;
+  private stage0: number;
+  private stage1: number;
   private stageBoundary: number = this.stage0 / 2;
   private currentStage: number;
 
@@ -36,6 +36,8 @@ export class PanelJsComponent implements OnInit {
 
   constructor(private panelService: PanelJsService) {
     const config = panelService.getConfig();
+    this.stage0 = window.innerHeight * (1-config.stage0);
+    this.stage1 = window.innerHeight * (1-config.stage1);
     this.persistentMode = config.persistent;
     if (this.persistentMode) {
       this.animateStage0();
@@ -56,11 +58,11 @@ export class PanelJsComponent implements OnInit {
     const touchPos = event.deltaY - this.startPos;
     // Prevent panel from going out of boundaries
     if (this.persistentMode) {
-      if (touchPos > 0 && touchPos < this.stage0) {
+      if (touchPos > this.stage1 && touchPos < this.stage0) {
         this.pos = touchPos;
       }
     } else {
-      if (touchPos > 0) {
+      if (touchPos > this.stage1) {
         this.pos = touchPos;
       }
     }
