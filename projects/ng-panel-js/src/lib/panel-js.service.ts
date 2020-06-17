@@ -12,9 +12,15 @@ export class PanelJsService {
   private scrollLockSubject: Subject<boolean> = new BehaviorSubject(false);
   private currentScrollLock$: Observable<boolean> = this.scrollLockSubject.asObservable();
 
+  private events$: Subject<string> = new Subject<string>();
+
   animateStage0(): void {}
   animateStage1(): void {}
   animateAnchorStage(): void {}
+
+  toggle(): void {
+    this.events$.next('toggle');
+  }
 
   getScrollLock() { return this.currentScrollLock$; }
   setScrollLock(newValue: boolean) { this.scrollLockSubject.next(newValue); }
@@ -25,5 +31,9 @@ export class PanelJsService {
 
   getConfig(): PanelJSConfig {
     return this.config;
+  }
+
+  getEvents(): Observable<string> {
+    return this.events$;
   }
 }

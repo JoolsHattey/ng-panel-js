@@ -21,16 +21,30 @@ export class PanelJsComponent implements OnInit {
   private stage0: number = window.innerHeight / 2;
   private stage1: number = 0;
   private stageBoundary: number = this.stage0 / 2;
-  private currentStage: number = 0;
+  private currentStage: number = -1;
+
+  private persistentMode: boolean;
+
+  private panelOpen: boolean;
   
-  pos: number = this.stage0;
+  pos: number;
   transitionSpeed: string = '0s';
 
   // Used to fix iOS propogation bug
   colour: string = "purple";
   private colourSubject: Subject<string> = new BehaviorSubject("red");
 
-  constructor(private panelService: PanelJsService) {}
+  constructor(private panelService: PanelJsService) {
+    const config = panelService.getConfig();
+    this.persistentMode = config.persistent;
+    if (this.persistentMode) {
+      this.pos = this.stage0;
+      this.panelOpen = true;
+    } else {
+      this.pos = window.innerHeight;
+      this.panelOpen = false;
+    }
+  }
 
   @HostListener('panstart', ['$event']) panstart(event: HammerInput) {
     event.preventDefault();
@@ -84,11 +98,35 @@ export class PanelJsComponent implements OnInit {
     this.currentStage = 0;
     this.colourSubject.next('blue');
   }
+  animateClose() {
+    this.panelService.setScrollLock(false);
+    this.pos = window.innerHeight;
+    this.currentStage = -1;
+    this.colourSubject.next('yellow');
+  }
 
-  open() {}
-  close() {}
+  toggle() {
+    this.transitionSpeed = '0.3s';
+    if (!this.persistentMode) {
+      if (this.panelOpen) {
+        this.animateClose();
+      } else {
+        this.animateStage0();
+      }
+      this.panelOpen = !this.panelOpen;
+    }
+  }
 
   ngOnInit() {
+    this.panelService.getEvents().subscribe(event => {
+      switch (event) {
+        case 'toggle':
+          this.toggle();
+          break;
+        default:
+          break;
+      }
+    });
     console.log(this.panelService.getConfig());
     this.colourSubject.asObservable().subscribe(color => {
       if(this.colour === color) {
