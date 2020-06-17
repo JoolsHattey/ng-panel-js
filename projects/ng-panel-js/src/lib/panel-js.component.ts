@@ -2,7 +2,6 @@ import { Component, OnInit, HostListener } from '@angular/core';
 import { PanelJsService } from './panel-js.service';
 import { Subject, BehaviorSubject } from 'rxjs';
 
-
 @Component({
   selector: 'panel-js',
   template: '<ng-content></ng-content>',
@@ -20,7 +19,7 @@ export class PanelJsComponent implements OnInit {
   private startPos: number;
   private stage0: number;
   private stage1: number;
-  private stageBoundary: number = this.stage0 / 2;
+  private stageBoundary: number;
   private currentStage: number;
 
   private persistentMode: boolean;
@@ -46,6 +45,7 @@ export class PanelJsComponent implements OnInit {
       this.animateClose();
       this.panelOpen = false;
     }
+    this.stageBoundary = this.stage0 / 2;
   }
 
   @HostListener('panstart', ['$event']) panstart(event: HammerInput) {
@@ -66,7 +66,6 @@ export class PanelJsComponent implements OnInit {
         this.pos = touchPos;
       }
     }
-    
   }
 
   @HostListener('panend', ['$event']) panend(event: HammerInput) {
