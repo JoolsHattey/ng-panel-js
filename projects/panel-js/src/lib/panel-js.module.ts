@@ -1,10 +1,10 @@
-import { NgModule, Injector } from '@angular/core';
+import { NgModule, Injector, Injectable } from '@angular/core';
 import { createCustomElement } from '@angular/elements';
 import { PanelJsComponent } from './panel-js.component';
 import { PanelJsScrollComponent } from './panel-js-scroll.component';
 import { HammerModule, HammerGestureConfig, HAMMER_GESTURE_CONFIG } from '@angular/platform-browser';
 
-export class PanelHammerConfig extends HammerGestureConfig {
+@Injectable() export class PanelHammerConfig extends HammerGestureConfig {
   overrides = <any>{
     'pan': {threshold: 0}
   }
