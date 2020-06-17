@@ -86,6 +86,7 @@ export class PanelJsComponent implements OnInit {
   }
 
   ngOnInit() {
+    console.log(this.panelService.getConfig());
     this.colourSubject.asObservable().subscribe(color => {
       if(this.colour === color) {
         this.colour = "purple";

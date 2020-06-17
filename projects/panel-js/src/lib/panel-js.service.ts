@@ -1,10 +1,13 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Inject } from '@angular/core';
 import { BehaviorSubject, Subject, Observable } from 'rxjs';
+import { LIB_CONFIG, PanelJSConfig } from './config';
 
 @Injectable({
   providedIn: 'root'
 })
-export class PanelJsService {
+export class PanelJsService { 
+
+  constructor(@Inject(LIB_CONFIG) private config: PanelJSConfig) {}
 
   private scrollLockSubject: Subject<boolean> = new BehaviorSubject(false);
   private currentScrollLock$: Observable<boolean> = this.scrollLockSubject.asObservable();
@@ -18,5 +21,9 @@ export class PanelJsService {
 
   getSwipeEvents(): Observable<any> {
     return Observable.create(observer => observer.next())
+  }
+
+  getConfig(): PanelJSConfig {
+    return this.config;
   }
 }
