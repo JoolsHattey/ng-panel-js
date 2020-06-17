@@ -1,5 +1,5 @@
 {
-  "name": "panel-js",
+  "name": "ng-panel-js",
   "version": "0.0.1",
   "peerDependencies": {
     "@angular/common": "^9.1.0",

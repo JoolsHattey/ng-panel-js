@@ -13,7 +13,7 @@ import { Observable, fromEvent } from 'rxjs';
 })
 export class PanelJsScrollComponent implements OnInit {
 
-  private overflow: string;
+  overflow: string;
 
   constructor(private panelService: PanelJsService, private elementRef: ElementRef) { }
 

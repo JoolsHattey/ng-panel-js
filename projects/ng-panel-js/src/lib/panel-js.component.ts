@@ -23,11 +23,11 @@ export class PanelJsComponent implements OnInit {
   private stageBoundary: number = this.stage0 / 2;
   private currentStage: number = 0;
   
-  private pos: number = this.stage0;
-  private transitionSpeed: string = '0s';
+  pos: number = this.stage0;
+  transitionSpeed: string = '0s';
 
   // Used to fix iOS propogation bug
-  private colour: string = "purple";
+  colour: string = "purple";
   private colourSubject: Subject<string> = new BehaviorSubject("red");
 
   constructor(private panelService: PanelJsService) {}
@@ -84,6 +84,9 @@ export class PanelJsComponent implements OnInit {
     this.currentStage = 0;
     this.colourSubject.next('blue');
   }
+
+  open() {}
+  close() {}
 
   ngOnInit() {
     console.log(this.panelService.getConfig());
