@@ -21,7 +21,7 @@ export class PanelJsComponent implements OnInit {
   private stage0: number = window.innerHeight / 2;
   private stage1: number = 0;
   private stageBoundary: number = this.stage0 / 2;
-  private currentStage: number = -1;
+  private currentStage: number;
 
   private persistentMode: boolean;
 
@@ -38,10 +38,10 @@ export class PanelJsComponent implements OnInit {
     const config = panelService.getConfig();
     this.persistentMode = config.persistent;
     if (this.persistentMode) {
-      this.pos = this.stage0;
+      this.animateStage0();
       this.panelOpen = true;
     } else {
-      this.pos = window.innerHeight;
+      this.animateClose();
       this.panelOpen = false;
     }
   }
@@ -55,9 +55,16 @@ export class PanelJsComponent implements OnInit {
   @HostListener('panmove', ['$event']) panmove(event: HammerInput) {
     const touchPos = event.deltaY - this.startPos;
     // Prevent panel from going out of boundaries
-    if (touchPos > 0 && touchPos < this.stage0) {
-      this.pos = touchPos;
+    if (this.persistentMode) {
+      if (touchPos > 0 && touchPos < this.stage0) {
+        this.pos = touchPos;
+      }
+    } else {
+      if (touchPos > 0) {
+        this.pos = touchPos;
+      }
     }
+    
   }
 
   @HostListener('panend', ['$event']) panend(event: HammerInput) {
@@ -72,6 +79,8 @@ export class PanelJsComponent implements OnInit {
         } else {
           this.animateStage1();
         }
+      } else if (this.currentStage === 0 && !this.persistentMode) {
+        this.toggle();
       }
     }
     // Swipe up
