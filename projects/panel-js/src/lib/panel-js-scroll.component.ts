@@ -19,7 +19,7 @@ export class PanelJsScrollComponent implements OnInit {
 
   @HostListener('pan', ['$event']) onScroll(event: Event) {
     console.log('scroll')
-    event.stopPropagation();
+    // event.stopPropagation();
   }
 
   ngOnInit(): void {

@@ -30,9 +30,7 @@ export class PanelJsComponent implements OnInit {
   private colour: string = "purple";
   private colourSubject: Subject<string> = new BehaviorSubject("red");
 
-  constructor(private panelService: PanelJsService) {
-    // this.pos = panelService.getStage0();
-  }
+  constructor(private panelService: PanelJsService) {}
 
   @HostListener('panstart', ['$event']) panstart(event: HammerInput) {
     event.preventDefault();
@@ -41,7 +39,6 @@ export class PanelJsComponent implements OnInit {
   }
 
   @HostListener('panmove', ['$event']) panmove(event: HammerInput) {
-    // event.srcEvent.stopPropagation();
     const touchPos = event.deltaY - this.startPos;
     // Prevent panel from going out of boundaries
     if (touchPos > 0 && touchPos < this.stage0) {
