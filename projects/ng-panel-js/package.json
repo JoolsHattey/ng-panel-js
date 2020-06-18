@@ -1,6 +1,7 @@
 {
   "name": "ng-panel-js",
-  "version": "0.0.1",
+  "version": "0.0.5",
+  "repository": {"url": "https://github.com/joolsh625/ng-panel-js"},
   "peerDependencies": {
     "@angular/common": "^9.1.0",
     "@angular/core": "^9.1.0",

@@ -17,24 +17,24 @@ export class PanelJsScrollComponent implements OnInit {
 
   constructor(private panelService: PanelJsService, private elementRef: ElementRef) { }
 
-  @HostListener('pan', ['$event']) onScroll(event: Event) {
+  @HostListener('pan', ['$event']) pan(event: Event) {
     console.log('scroll')
-    // event.stopPropagation();
+  }
+
+  @HostListener('scroll', ['$event'])  onScroll(event: Event) {
+    console.log('scroll')
   }
 
   ngOnInit(): void {
-    console.log("panel scroll init")
-    // const scrollEvent$: Observable<Event> = fromEvent(this.elementRef.nativeElement, 'scroll');
-    // this.panelService.setScrollListener(scrollEvent$);
     this.panelService.getScrollLock().subscribe(lock => {
       if(lock) {
         this.overflow = "scroll";
       } else {
         this.overflow = "hidden";
       }
-      //this.overflow = "scroll";
     });
-
+    this.panelService.getScrollPos().subscribe(pos => {
+      this.elementRef.nativeElement.scrollTo(0, pos);
+    });
   }
-
 }

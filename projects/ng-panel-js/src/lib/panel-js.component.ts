@@ -22,6 +22,8 @@ export class PanelJsComponent implements OnInit {
   private stageBoundary: number;
   private currentStage: number;
 
+  private scrollLock: boolean = false;
+
   private persistentMode: boolean;
 
   private panelOpen: boolean;
@@ -49,7 +51,6 @@ export class PanelJsComponent implements OnInit {
   }
 
   @HostListener('panstart', ['$event']) panstart(event: HammerInput) {
-    event.preventDefault();
     this.transitionSpeed = '0s';
     this.startPos = event.deltaY - this.pos;
   }
@@ -57,13 +58,30 @@ export class PanelJsComponent implements OnInit {
   @HostListener('panmove', ['$event']) panmove(event: HammerInput) {
     const touchPos = event.deltaY - this.startPos;
     // Prevent panel from going out of boundaries
+    console.log(event)
     if (this.persistentMode) {
       if (touchPos > this.stage1 && touchPos < this.stage0) {
         this.pos = touchPos;
+        this.scrollLock = false;
+      } else if(touchPos <= this.stage1) {
+        if (!this.scrollLock) {
+          this.animateStage1();
+          this.panelService.setScrollLock(true)
+          this.scrollLock = true;
+        }
+        this.panelService.setScrollPos(this.stage1 - touchPos);
       }
     } else {
       if (touchPos > this.stage1) {
         this.pos = touchPos;
+        this.scrollLock = false;
+      } else {
+        if (!this.scrollLock) {
+          this.animateStage1();
+          this.panelService.setScrollLock(true)
+          this.scrollLock = true;
+        }
+        this.panelService.setScrollPos(this.stage1 - touchPos);
       }
     }
   }
@@ -98,18 +116,21 @@ export class PanelJsComponent implements OnInit {
 
   animateStage1() {
     this.panelService.setScrollLock(true);
+    this.scrollLock = true;
     this.pos = this.stage1;
     this.currentStage = 1;
     this.colourSubject.next('green');
   }
   animateStage0() {
     this.panelService.setScrollLock(false);
+    this.scrollLock = false;
     this.pos = this.stage0;
     this.currentStage = 0;
     this.colourSubject.next('blue');
   }
   animateClose() {
     this.panelService.setScrollLock(false);
+    this.scrollLock = false;
     this.pos = window.innerHeight;
     this.currentStage = -1;
     this.colourSubject.next('yellow');
