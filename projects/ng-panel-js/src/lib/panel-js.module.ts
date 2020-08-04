@@ -32,7 +32,7 @@ export class PanelJsModule {
     customElements.define('panel-js-scroll', panelScroll);
   }
 
-  static forRoot(config: PanelJSConfig): ModuleWithProviders {
+  static forRoot(config: PanelJSConfig): ModuleWithProviders<PanelJsModule> {
     return({
       ngModule: PanelJsModule,
       providers: [
