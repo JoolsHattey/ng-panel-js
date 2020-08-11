@@ -1,16 +1,11 @@
-import { Component, OnInit, HostListener } from '@angular/core';
+import { Component, OnInit, HostListener, ElementRef } from '@angular/core';
 import { PanelJsService } from './panel-js.service';
-import { Subject, BehaviorSubject } from 'rxjs';
 
 @Component({
   selector: 'panel-js',
   template: '<ng-content></ng-content>',
   host: {
-    "[style.transform]":"'translate3d(0, '+pos+'px, 0)'",
-    "[style.transition]":"transitionSpeed",
-    "[style.backgroundColor]":"colour",
     "[style.display]":"'block'",
-    "[style.willChange]": "'transform'"
   },
   styleUrls: ['./panel-js.component.scss']
 })
@@ -27,19 +22,22 @@ export class PanelJsComponent implements OnInit {
   private persistentMode: boolean;
 
   private panelOpen: boolean;
+
+  private scrollPos: number = 0;
+  private scrollStartPos: number;
+
+  private scrollActive: boolean = false; 
   
   pos: number;
   transitionSpeed: string = '0s';
 
-  // Used to fix iOS propogation bug
-  colour: string = "purple";
-  private colourSubject: Subject<string> = new BehaviorSubject("red");
-
-  constructor(private panelService: PanelJsService) {
+  constructor(private panelService: PanelJsService, private elementRef: ElementRef) {
     const config = panelService.getConfig();
     this.stage0 = window.innerHeight * (1-config.stage0);
     this.stage1 = window.innerHeight * (1-config.stage1);
     this.persistentMode = config.persistent;
+    
+
     if (this.persistentMode) {
       this.animateStage0();
       this.panelOpen = true;
@@ -48,20 +46,30 @@ export class PanelJsComponent implements OnInit {
       this.panelOpen = false;
     }
     this.stageBoundary = this.stage0 / 2;
+    this.panelService.getScrollPos().subscribe(pos => {
+      this.scrollPos = pos;
+    });
   }
 
   @HostListener('panstart', ['$event']) panstart(event: HammerInput) {
     this.transitionSpeed = '0s';
     this.startPos = event.deltaY - this.pos;
+    this.scrollStartPos = this.scrollPos;
   }
 
   @HostListener('panmove', ['$event']) panmove(event: HammerInput) {
     const touchPos = event.deltaY - this.startPos;
+    this.pos = touchPos;
     // Prevent panel from going out of boundaries
-    console.log(event)
     if (this.persistentMode) {
-      if (touchPos > this.stage1 && touchPos < this.stage0) {
-        this.pos = touchPos;
+      if (touchPos > this.stage1 && touchPos < this.stage0 && event.distance >= this.scrollStartPos) {
+        this.elementRef.nativeElement.animate({
+          transform: `translate3d(0, ${touchPos}px, 0)`,
+        }, {
+          duration: 50,
+          fill: "forwards"
+        });
+        
         this.scrollLock = false;
       } else if(touchPos <= this.stage1) {
         if (!this.scrollLock) {
@@ -72,8 +80,13 @@ export class PanelJsComponent implements OnInit {
         this.panelService.setScrollPos(this.stage1 - touchPos);
       }
     } else {
-      if (touchPos > this.stage1) {
-        this.pos = touchPos;
+      if (touchPos > this.stage1 && event.distance >= this.scrollStartPos) {
+        this.elementRef.nativeElement.animate({
+          transform: `translate3d(0, ${touchPos}px, 0)`,
+        }, {
+          duration: 50,
+          fill: "forwards"
+        });
         this.scrollLock = false;
       } else {
         if (!this.scrollLock) {
@@ -89,7 +102,6 @@ export class PanelJsComponent implements OnInit {
   @HostListener('panend', ['$event']) panend(event: HammerInput) {
     this.transitionSpeed = '0.3s';
     const speed = Math.abs(event.velocity);
-    console.log(event);
     // Swipe down
     if (event.offsetDirection === 16) {
       if (this.currentStage === 1) {
@@ -117,23 +129,34 @@ export class PanelJsComponent implements OnInit {
   animateStage1() {
     this.panelService.setScrollLock(true);
     this.scrollLock = true;
+    this.elementRef.nativeElement.animate({
+      transform: `translate3d(0, ${this.stage1}px, 0)`,
+    }, {
+      easing: 'ease-out',
+      duration: 300,
+      fill: "forwards"
+    });
     this.pos = this.stage1;
     this.currentStage = 1;
-    this.colourSubject.next('green');
   }
   animateStage0() {
     this.panelService.setScrollLock(false);
     this.scrollLock = false;
+    this.elementRef.nativeElement.animate({
+      transform: `translate3d(0, ${this.stage0}px, 0)`,
+    }, {
+      easing: 'ease-out',
+      duration: 300,
+      fill: "forwards"
+    });
     this.pos = this.stage0;
     this.currentStage = 0;
-    this.colourSubject.next('blue');
   }
   animateClose() {
     this.panelService.setScrollLock(false);
     this.scrollLock = false;
-    this.pos = window.innerHeight;
+    // this.makeAnimation([animate(300, style({transform: `translateY(${window.innerHeight}px)`}))]);
     this.currentStage = -1;
-    this.colourSubject.next('yellow');
   }
 
   toggle() {
@@ -159,12 +182,5 @@ export class PanelJsComponent implements OnInit {
       }
     });
     console.log(this.panelService.getConfig());
-    this.colourSubject.asObservable().subscribe(color => {
-      if(this.colour === color) {
-        this.colour = "purple";
-      } else {
-        this.colour = color
-      }
-    });
   }
 }
