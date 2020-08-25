@@ -16,6 +16,8 @@ export class PanelJsService {
 
   private events$: Subject<string> = new Subject<string>();
 
+  private swipeEvents$: Subject<string> = new Subject<string>();
+
   animateStage0(): void {}
   animateStage1(): void {}
   animateAnchorStage(): void {}
@@ -27,8 +29,11 @@ export class PanelJsService {
   getScrollLock() { return this.currentScrollLock$; }
   setScrollLock(newValue: boolean) { this.scrollLockSubject.next(newValue); }
 
-  getSwipeEvents(): Observable<any> {
-    return Observable.create(observer => observer.next())
+  getSwipeEvents(): Observable<string> {
+    return this.swipeEvents$;
+  }
+  setSwipeEvents(ev) {
+    this.swipeEvents$.next(ev);
   }
 
   getConfig(): PanelJSConfig {

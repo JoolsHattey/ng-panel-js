@@ -1,6 +1,5 @@
-import { Component, OnInit, ElementRef, ViewEncapsulation, HostListener } from '@angular/core';
+import { Component, OnInit, ElementRef, HostListener } from '@angular/core';
 import { PanelJsService } from './panel-js.service';
-import { Observable, fromEvent } from 'rxjs';
 
 @Component({
   selector: 'panel-js-scroll',

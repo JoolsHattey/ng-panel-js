@@ -26,7 +26,7 @@ export class PanelJsComponent implements OnInit {
   private scrollPos: number = 0;
   private scrollStartPos: number;
 
-  private scrollActive: boolean = false; 
+  private scrollActive: boolean = false;
   
   pos: number;
   transitionSpeed: string = '0s';
@@ -69,7 +69,6 @@ export class PanelJsComponent implements OnInit {
           duration: 50,
           fill: "forwards"
         });
-        
         this.scrollLock = false;
       } else if(touchPos <= this.stage1) {
         if (!this.scrollLock) {
@@ -106,9 +105,9 @@ export class PanelJsComponent implements OnInit {
     if (event.offsetDirection === 16) {
       if (this.currentStage === 1) {
         if (speed > 0.5 || this.pos > this.stageBoundary) {
-          this.animateStage0();
+          this.animateStage0(true);
         } else {
-          this.animateStage1();
+          this.animateStage1(true);
         }
       } else if (this.currentStage === 0 && !this.persistentMode) {
         this.toggle();
@@ -118,37 +117,43 @@ export class PanelJsComponent implements OnInit {
     else if (event.offsetDirection === 8) {
       if (this.currentStage === 0) {
         if (speed > 0.5 || this.pos < this.stageBoundary) {
-          this.animateStage1();
+          this.animateStage1(true);
         } else {
-          this.animateStage0();
+          this.animateStage0(true);
         }
       }
     }
   }
 
-  animateStage1() {
+  animateStage1(swipe?) {
     this.panelService.setScrollLock(true);
     this.scrollLock = true;
-    this.elementRef.nativeElement.animate({
+    const animation = this.elementRef.nativeElement.animate({
       transform: `translate3d(0, ${this.stage1}px, 0)`,
     }, {
       easing: 'ease-out',
       duration: 300,
       fill: "forwards"
     });
+    if (swipe) {
+      animation.finished.then(() => this.panelService.setSwipeEvents('up'));
+    }
     this.pos = this.stage1;
     this.currentStage = 1;
   }
-  animateStage0() {
+  animateStage0(swipe?) {
     this.panelService.setScrollLock(false);
     this.scrollLock = false;
-    this.elementRef.nativeElement.animate({
+    const animation = this.elementRef.nativeElement.animate({
       transform: `translate3d(0, ${this.stage0}px, 0)`,
     }, {
       easing: 'ease-out',
       duration: 300,
       fill: "forwards"
     });
+    if (swipe) {
+      animation.finished.then(() => this.panelService.setSwipeEvents('down'));
+    }
     this.pos = this.stage0;
     this.currentStage = 0;
   }

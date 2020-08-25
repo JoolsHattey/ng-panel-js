@@ -7,7 +7,7 @@ import { PanelJSConfig, LIB_CONFIG } from './config';
 
 @Injectable() export class PanelHammerConfig extends HammerGestureConfig {
   overrides = <any>{
-    'pan': {threshold: 0}
+    'pan': {threshold: 0.0, pointers: 1}
   }
 }
 
