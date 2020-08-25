@@ -18,6 +18,8 @@ export class PanelJsService {
 
   private swipeEvents$: Subject<string> = new Subject<string>();
 
+  private desktopMode$: Subject<boolean> = new Subject<boolean>();
+
   animateStage0(): void {}
   animateStage1(): void {}
   animateAnchorStage(): void {}
@@ -34,6 +36,12 @@ export class PanelJsService {
   }
   setSwipeEvents(ev) {
     this.swipeEvents$.next(ev);
+  }
+  setDesktopMode(value) {
+    this.desktopMode$.next(value);
+  }
+  getDesktopMode() {
+    return this.desktopMode$;
   }
 
   getConfig(): PanelJSConfig {

@@ -36,7 +36,8 @@ export class PanelJsComponent implements OnInit {
     this.stage0 = window.innerHeight * (1-config.stage0);
     this.stage1 = window.innerHeight * (1-config.stage1);
     this.persistentMode = config.persistent;
-    
+
+    panelService.getDesktopMode().subscribe(result => this.setDesktopMode(result));
 
     if (this.persistentMode) {
       this.animateStage0();
@@ -123,6 +124,22 @@ export class PanelJsComponent implements OnInit {
         }
       }
     }
+  }
+
+  setDesktopMode(enable: boolean) {
+    enable ? this.elementRef.nativeElement.animate({
+      transform: `translate3d(0, ${this.stage1}px, 0)`,
+    }, {
+      easing: 'ease-out',
+      duration: 0,
+      fill: 'forwards',
+    }) : this.elementRef.nativeElement.animate({
+      transform: `translate3d(0, ${this.stage0}px, 0)`,
+    }, {
+      easing: 'ease-out',
+      duration: 0,
+      fill: 'forwards',
+    });
   }
 
   animateStage1(swipe?) {
