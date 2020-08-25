@@ -5,7 +5,7 @@ import { LIB_CONFIG, PanelJSConfig } from './config';
 @Injectable({
   providedIn: 'root'
 })
-export class PanelJsService { 
+export class PanelJsService {
 
   constructor(@Inject(LIB_CONFIG) private config: PanelJSConfig) {}
 

@@ -6,9 +6,9 @@ import { HammerModule, HammerGestureConfig, HAMMER_GESTURE_CONFIG } from '@angul
 import { PanelJSConfig, LIB_CONFIG } from './config';
 
 @Injectable() export class PanelHammerConfig extends HammerGestureConfig {
-  overrides = <any>{
-    'pan': {threshold: 0.0, pointers: 1}
-  }
+  overrides =  {
+    pan: {threshold: 0.0, pointers: 1}
+  } as any;
 }
 
 @NgModule({
@@ -24,14 +24,6 @@ import { PanelJSConfig, LIB_CONFIG } from './config';
 export class PanelJsModule {
   constructor(private injector: Injector) {}
 
-  ngDoBootstrap() {
-    const panel = <any> createCustomElement(PanelJsComponent, {injector: this.injector});
-    const panelScroll = <any> createCustomElement(PanelJsScrollComponent, {injector: this.injector});
-
-    customElements.define('panel-js', panel);
-    customElements.define('panel-js-scroll', panelScroll);
-  }
-
   static forRoot(config: PanelJSConfig): ModuleWithProviders<PanelJsModule> {
     return({
       ngModule: PanelJsModule,
@@ -41,7 +33,15 @@ export class PanelJsModule {
           useValue: config
         }
       ]
-    })
+    });
+  }
+
+  ngDoBootstrap() {
+    const panel = createCustomElement(PanelJsComponent, {injector: this.injector}) as any;
+    const panelScroll = createCustomElement(PanelJsScrollComponent, {injector: this.injector}) as any;
+
+    customElements.define('panel-js', panel);
+    customElements.define('panel-js-scroll', panelScroll);
   }
 }
 

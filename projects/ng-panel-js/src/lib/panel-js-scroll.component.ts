@@ -5,8 +5,8 @@ import { PanelJsService } from './panel-js.service';
   selector: 'panel-js-scroll',
   template: '<ng-content></ng-content>',
   host: {
-    "[style.overflowY]":"overflow",
-    "[style.display]":"'block'",
+    '[style.overflowY]':'overflow',
+    '[style.display]':'\'block\'',
   },
   styleUrls: ['./panel-js-scroll.component.css']
 })
@@ -17,19 +17,19 @@ export class PanelJsScrollComponent implements OnInit {
   constructor(private panelService: PanelJsService, private elementRef: ElementRef) { }
 
   @HostListener('pan', ['$event']) pan(event: Event) {
-    console.log('scroll')
+    console.log('scroll');
   }
 
   @HostListener('scroll', ['$event'])  onScroll(event: Event) {
-    console.log('scroll')
+    console.log('scroll');
   }
 
   ngOnInit(): void {
     this.panelService.getScrollLock().subscribe(lock => {
-      if(lock) {
-        this.overflow = "scroll";
+      if (lock) {
+        this.overflow = 'scroll';
       } else {
-        this.overflow = "hidden";
+        this.overflow = 'hidden';
       }
     });
     this.panelService.getScrollPos().subscribe(pos => {

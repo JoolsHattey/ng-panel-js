@@ -5,7 +5,7 @@ import { PanelJsService } from './panel-js.service';
   selector: 'panel-js',
   template: '<ng-content></ng-content>',
   host: {
-    "[style.display]":"'block'",
+    '[style.display]':'\'block\'',
   },
   styleUrls: ['./panel-js.component.scss']
 })
@@ -17,24 +17,24 @@ export class PanelJsComponent implements OnInit {
   private stageBoundary: number;
   private currentStage: number;
 
-  private scrollLock: boolean = false;
+  private scrollLock = false;
 
   private persistentMode: boolean;
 
   private panelOpen: boolean;
 
-  private scrollPos: number = 0;
+  private scrollPos = 0;
   private scrollStartPos: number;
 
-  private scrollActive: boolean = false;
-  
+  private scrollActive = false;
+
   pos: number;
-  transitionSpeed: string = '0s';
+  transitionSpeed = '0s';
 
   constructor(private panelService: PanelJsService, private elementRef: ElementRef) {
     const config = panelService.getConfig();
-    this.stage0 = window.innerHeight * (1-config.stage0);
-    this.stage1 = window.innerHeight * (1-config.stage1);
+    this.stage0 = window.innerHeight * (1 - config.stage0);
+    this.stage1 = window.innerHeight * (1 - config.stage1);
     this.persistentMode = config.persistent;
 
     panelService.getDesktopMode().subscribe(result => this.setDesktopMode(result));
@@ -68,13 +68,13 @@ export class PanelJsComponent implements OnInit {
           transform: `translate3d(0, ${touchPos}px, 0)`,
         }, {
           duration: 50,
-          fill: "forwards"
+          fill: 'forwards'
         });
         this.scrollLock = false;
-      } else if(touchPos <= this.stage1) {
+      } else if (touchPos <= this.stage1) {
         if (!this.scrollLock) {
           this.animateStage1();
-          this.panelService.setScrollLock(true)
+          this.panelService.setScrollLock(true);
           this.scrollLock = true;
         }
         this.panelService.setScrollPos(this.stage1 - touchPos);
@@ -85,13 +85,13 @@ export class PanelJsComponent implements OnInit {
           transform: `translate3d(0, ${touchPos}px, 0)`,
         }, {
           duration: 50,
-          fill: "forwards"
+          fill: 'forwards'
         });
         this.scrollLock = false;
       } else {
         if (!this.scrollLock) {
           this.animateStage1();
-          this.panelService.setScrollLock(true)
+          this.panelService.setScrollLock(true);
           this.scrollLock = true;
         }
         this.panelService.setScrollPos(this.stage1 - touchPos);
@@ -150,7 +150,7 @@ export class PanelJsComponent implements OnInit {
     }, {
       easing: 'ease-out',
       duration: 300,
-      fill: "forwards"
+      fill: 'forwards'
     });
     if (swipe) {
       animation.finished.then(() => this.panelService.setSwipeEvents('up'));
@@ -166,7 +166,7 @@ export class PanelJsComponent implements OnInit {
     }, {
       easing: 'ease-out',
       duration: 300,
-      fill: "forwards"
+      fill: 'forwards'
     });
     if (swipe) {
       animation.finished.then(() => this.panelService.setSwipeEvents('down'));
