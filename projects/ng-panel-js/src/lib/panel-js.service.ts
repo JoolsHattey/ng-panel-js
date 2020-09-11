@@ -31,31 +31,16 @@ export class PanelJsService {
   getScrollLock() { return this.currentScrollLock$; }
   setScrollLock(newValue: boolean) { this.scrollLockSubject.next(newValue); }
 
-  getSwipeEvents(): Observable<string> {
-    return this.swipeEvents$;
-  }
-  setSwipeEvents(ev) {
-    this.swipeEvents$.next(ev);
-  }
-  setDesktopMode(value) {
-    this.desktopMode$.next(value);
-  }
-  getDesktopMode() {
-    return this.desktopMode$;
-  }
+  getSwipeEvents(): Observable<string> { return this.swipeEvents$; }
+  setSwipeEvents(ev) { this.swipeEvents$.next(ev); }
 
-  getConfig(): PanelJSConfig {
-    return this.config;
-  }
+  getDesktopMode(): Subject<boolean> { return this.desktopMode$; }
+  setDesktopMode(value: boolean): void { this.desktopMode$.next(value); }
 
-  getEvents(): Observable<string> {
-    return this.events$;
-  }
+  getConfig(): PanelJSConfig { return this.config; }
 
-  getScrollPos(): Observable<number> {
-    return this.scrollPos$;
-  }
-  setScrollPos(newValue: number): void {
-    this.scrollPos$.next(newValue);
-  }
+  getEvents(): Observable<string> { return this.events$; }
+
+  getScrollPos(): Observable<number> { return this.scrollPos$; }
+  setScrollPos(newValue: number): void { this.scrollPos$.next(newValue); }
 }
