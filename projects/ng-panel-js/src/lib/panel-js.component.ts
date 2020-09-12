@@ -14,6 +14,7 @@ export class PanelJsComponent implements OnInit {
   private startPos: number;
   private stage0: number;
   private stage1: number;
+  private anchorStage: number;
   private stageBoundary: number;
   private currentStage: number;
 
@@ -35,6 +36,8 @@ export class PanelJsComponent implements OnInit {
     const config = panelService.getConfig();
     this.stage0 = window.innerHeight * (1 - config.stage0);
     this.stage1 = window.innerHeight * (1 - config.stage1);
+    console.log(this.stage1)
+    this.anchorStage = window.innerHeight - this.stage0 * 1.5;
     this.persistentMode = config.persistent;
 
     panelService.getDesktopMode().subscribe(result => this.setDesktopMode(result));
@@ -60,16 +63,29 @@ export class PanelJsComponent implements OnInit {
 
   @HostListener('panmove', ['$event']) panmove(event: HammerInput) {
     const touchPos = event.deltaY - this.startPos;
-    this.pos = touchPos;
+    
+    console.log(touchPos)
     // Prevent panel from going out of boundaries
     if (this.persistentMode) {
-      if (touchPos > this.stage1 && touchPos < this.stage0 && event.distance >= this.scrollStartPos) {
+      if (this.currentStage === 2) {
+        if (event.offsetDirection === 16) {
+          this.elementRef.nativeElement.animate({
+            transform: `translate3d(0, ${touchPos}px, 0)`,
+          }, {
+            duration: 50,
+            fill: 'forwards'
+          });
+        }
+        this.pos = touchPos;
+      } else if (touchPos > this.stage1 && touchPos < this.stage0 && event.distance >= this.scrollStartPos) {
+        console.log('y8s')
         this.elementRef.nativeElement.animate({
           transform: `translate3d(0, ${touchPos}px, 0)`,
         }, {
           duration: 50,
           fill: 'forwards'
         });
+        this.pos = touchPos;
         this.scrollLock = false;
       } else if (touchPos <= this.stage1) {
         if (!this.scrollLock) {
@@ -87,6 +103,7 @@ export class PanelJsComponent implements OnInit {
           duration: 50,
           fill: 'forwards'
         });
+        this.pos = touchPos;
         this.scrollLock = false;
       } else {
         if (!this.scrollLock) {
@@ -105,6 +122,12 @@ export class PanelJsComponent implements OnInit {
     // Swipe down
     if (event.offsetDirection === 16) {
       if (this.currentStage === 1) {
+        if (speed > 0.5 || this.pos > this.stageBoundary) {
+          this.animateStage0(true);
+        } else {
+          this.animateStage1(true);
+        }
+      } else if (this.currentStage === 2) {
         if (speed > 0.5 || this.pos > this.stageBoundary) {
           this.animateStage0(true);
         } else {
@@ -174,6 +197,19 @@ export class PanelJsComponent implements OnInit {
     this.pos = this.stage0;
     this.currentStage = 0;
   }
+  animateAnchorStage() {
+    const animation = this.elementRef.nativeElement.animate([{
+      transform: `translate3d(0, ${this.pos}px, 0)`,
+    }, {
+      transform: `translate3d(0, ${this.anchorStage}px, 0)`,
+    }], {
+      easing: 'ease-out',
+      duration: 300,
+      fill: 'forwards'
+    });
+    this.pos = this.anchorStage;
+    this.currentStage = 2;
+  }
   animateClose() {
     this.panelService.setScrollLock(false);
     this.scrollLock = false;
@@ -202,6 +238,10 @@ export class PanelJsComponent implements OnInit {
         default:
           break;
       }
+    });
+    this.panelService.getAnchorEvents().subscribe(() => {
+      console.log('anchor')
+      this.animateAnchorStage();
     });
     console.log(this.panelService.getConfig());
   }

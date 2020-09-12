@@ -16,13 +16,17 @@ export class PanelJsService {
 
   private events$: Subject<string> = new Subject<string>();
 
+  private anchorEvents$: Subject<void> = new Subject<void>();
+
   private swipeEvents$: Subject<string> = new Subject<string>();
 
   private desktopMode$: Subject<boolean> = new Subject<boolean>();
 
   animateStage0(): void {}
   animateStage1(): void {}
-  animateAnchorStage(): void {}
+  animateAnchorStage(): void {
+    this.anchorEvents$.next()
+  }
 
   toggle(): void {
     this.events$.next('toggle');
@@ -40,6 +44,8 @@ export class PanelJsService {
   getConfig(): PanelJSConfig { return this.config; }
 
   getEvents(): Observable<string> { return this.events$; }
+
+  getAnchorEvents(): Observable<void> { return this.anchorEvents$; }
 
   getScrollPos(): Observable<number> { return this.scrollPos$; }
   setScrollPos(newValue: number): void { this.scrollPos$.next(newValue); }
