@@ -3,38 +3,38 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "panel-js": {
+    "ng-panel-js": {
       "projectType": "library",
-      "root": "projects/panel-js",
-      "sourceRoot": "projects/panel-js/src",
+      "root": "projects/ng-panel-js",
+      "sourceRoot": "projects/ng-panel-js/src",
       "prefix": "lib",
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-ng-packagr:build",
           "options": {
-            "tsConfig": "projects/panel-js/tsconfig.lib.json",
-            "project": "projects/panel-js/ng-package.json"
+            "tsConfig": "projects/ng-panel-js/tsconfig.lib.json",
+            "project": "projects/ng-panel-js/ng-package.json"
           },
           "configurations": {
             "production": {
-              "tsConfig": "projects/panel-js/tsconfig.lib.prod.json"
+              "tsConfig": "projects/ng-panel-js/tsconfig.lib.prod.json"
             }
           }
         },
         "test": {
           "builder": "@angular-devkit/build-angular:karma",
           "options": {
-            "main": "projects/panel-js/src/test.ts",
-            "tsConfig": "projects/panel-js/tsconfig.spec.json",
-            "karmaConfig": "projects/panel-js/karma.conf.js"
+            "main": "projects/ng-panel-js/src/test.ts",
+            "tsConfig": "projects/ng-panel-js/tsconfig.spec.json",
+            "karmaConfig": "projects/ng-panel-js/karma.conf.js"
           }
         },
         "lint": {
           "builder": "@angular-devkit/build-angular:tslint",
           "options": {
             "tsConfig": [
-              "projects/panel-js/tsconfig.lib.json",
-              "projects/panel-js/tsconfig.spec.json"
+              "projects/ng-panel-js/tsconfig.lib.json",
+              "projects/ng-panel-js/tsconfig.spec.json"
             ],
             "exclude": [
               "**/node_modules/**"
@@ -44,7 +44,7 @@
       }
     }
   },
-  "defaultProject": "panel-js",
+  "defaultProject": "ng-panel-js",
   "cli": {
     "analytics": "a089fc5a-44c6-4ec5-b9a0-b97ec5f6e1e8"
   }

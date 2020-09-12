@@ -1,11 +1,11 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "../../out-tsc/lib",
     "target": "es2015",
     "declaration": true,
     "inlineSources": true,
-    "types": [],
+    "types": ["hammerjs"],
     "lib": [
       "dom",
       "es2018"
