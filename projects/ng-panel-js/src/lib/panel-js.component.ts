@@ -63,22 +63,21 @@ export class PanelJsComponent implements OnInit {
 
   @HostListener('panmove', ['$event']) panmove(event: HammerInput) {
     const touchPos = event.deltaY - this.startPos;
-    
-    console.log(touchPos)
     // Prevent panel from going out of boundaries
     if (this.persistentMode) {
       if (this.currentStage === 2) {
         if (event.offsetDirection === 16) {
-          this.elementRef.nativeElement.animate({
-            transform: `translate3d(0, ${touchPos}px, 0)`,
-          }, {
-            duration: 50,
-            fill: 'forwards'
-          });
+          if (this.pos < this.stage0) {
+            this.elementRef.nativeElement.animate({
+              transform: `translate3d(0, ${touchPos}px, 0)`,
+            }, {
+              duration: 50,
+              fill: 'forwards'
+            });
+            this.pos = touchPos;
+          }
         }
-        this.pos = touchPos;
       } else if (touchPos > this.stage1 && touchPos < this.stage0 && event.distance >= this.scrollStartPos) {
-        console.log('y8s')
         this.elementRef.nativeElement.animate({
           transform: `translate3d(0, ${touchPos}px, 0)`,
         }, {
