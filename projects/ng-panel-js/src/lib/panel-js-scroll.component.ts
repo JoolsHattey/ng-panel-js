@@ -4,10 +4,6 @@ import { PanelJsService } from './panel-js.service';
 @Component({
   selector: 'panel-js-scroll',
   template: '<ng-content></ng-content>',
-  host: {
-    '[style.overflowY]':'overflow',
-    '[style.display]':'\'block\'',
-  },
   styleUrls: ['./panel-js-scroll.component.css']
 })
 export class PanelJsScrollComponent implements OnInit {

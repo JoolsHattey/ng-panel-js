@@ -4,9 +4,6 @@ import { PanelJsService } from './panel-js.service';
 @Component({
   selector: 'panel-js',
   template: '<ng-content></ng-content>',
-  host: {
-    '[style.display]':'\'block\'',
-  },
   styleUrls: ['./panel-js.component.scss']
 })
 export class PanelJsComponent implements OnInit {
