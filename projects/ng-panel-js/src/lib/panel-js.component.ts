@@ -74,7 +74,7 @@ export class PanelJsComponent implements OnInit {
             this.pos = touchPos;
           }
         }
-      } else if (touchPos > this.stage1 && touchPos < this.stage0 && event.distance >= this.scrollStartPos) {
+      } else if (touchPos > this.stage1 && touchPos < this.stage0) {
         this.elementRef.nativeElement.animate({
           transform: `translate3d(0, ${touchPos}px, 0)`,
         }, {
@@ -92,7 +92,7 @@ export class PanelJsComponent implements OnInit {
         this.panelService.setScrollPos(this.stage1 - touchPos);
       }
     } else {
-      if (touchPos > this.stage1 && event.distance >= this.scrollStartPos) {
+      if (touchPos > this.stage1) {
         this.elementRef.nativeElement.animate({
           transform: `translate3d(0, ${touchPos}px, 0)`,
         }, {
