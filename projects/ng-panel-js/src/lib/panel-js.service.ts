@@ -49,4 +49,7 @@ export class PanelJsService {
 
   getScrollPos(): Observable<number> { return this.scrollPos$; }
   setScrollPos(newValue: number): void { this.scrollPos$.next(newValue); }
+
+  // TODO - this temporarily fixed the error, but needs a proper get stage observable
+  getStage(): Observable<any> {return new Observable}
 }
